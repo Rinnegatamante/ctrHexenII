@@ -327,6 +327,7 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume,
 	if (strcasecmp(sample,"misc/null.wav") == 0)
 	{
 		SV_StopSound(entity,channel);
+		free(datagram_buf);
 		return;
 	}
 
@@ -339,8 +340,10 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume,
 	if (channel < 0 || channel > 7)
 		Sys_Error ("SV_StartSound: channel = %i", channel);
 
-	if (sv.datagram.cursize > MAX_DATAGRAM-16)
+	if (sv.datagram.cursize > MAX_DATAGRAM-16){
+		free(datagram_buf);
 		return;	
+	}
 
 // find precache number for sound
     for (sound_num=1 ; sound_num<MAX_SOUNDS
@@ -351,6 +354,7 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume,
     if ( sound_num == MAX_SOUNDS || !sv.sound_precache[sound_num] )
     {
         Con_Printf ("SV_StartSound: %s not precached\n", sample);
+		free(datagram_buf);
         return;
     }
     
@@ -417,10 +421,8 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume,
 
 #endif
 
-#if RJNET
 	free(datagram_buf);
-#endif
-
+	
 }           
 
 /*

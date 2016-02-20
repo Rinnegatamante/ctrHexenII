@@ -1065,10 +1065,10 @@ R_EdgeDrawing
 */
 void R_EdgeDrawing (qboolean Translucent)
 {
-	edge_t	*ledges = malloc(sizeof(edge_t) * NUMSTACKEDGES +
-				((CACHE_SIZE - 1) / sizeof(edge_t)) + 1);
-	surf_t	*lsurfs = malloc(sizeof(surf_t) * NUMSTACKSURFACES +
-				((CACHE_SIZE - 1) / sizeof(surf_t)) + 1);
+	edge_t	*ledges = malloc(sizeof(edge_t) * (NUMSTACKEDGES +
+				((CACHE_SIZE - 1) / sizeof(edge_t)) + 1));
+	surf_t	*lsurfs = malloc(sizeof(surf_t) * (NUMSTACKSURFACES +
+				((CACHE_SIZE - 1) / sizeof(surf_t)) + 1));
 	int EdgesSize,SurfacesSize;
 
 	if (!Translucent) 

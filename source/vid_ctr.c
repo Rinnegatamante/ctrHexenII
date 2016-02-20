@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <3ds.h>
 
-#define SURFCACHE_SIZE 4194304
 viddef_t	vid;				// global video state
 
 int	basewidth, baseheight;
@@ -76,8 +75,8 @@ void	VID_Init (unsigned char *palette)
 	vid.rowbytes = vid.conrowbytes = basewidth;
 	VID_SetPalette(palette);
 	d_pzbuffer = zbuffer;
-	surfcache = malloc(SURFCACHE_SIZE);
-	D_InitCaches (surfcache, SURFCACHE_SIZE);
+	surfcache = malloc(D_SurfaceCacheForRes(basewidth,baseheight));
+	D_InitCaches (surfcache, D_SurfaceCacheForRes(basewidth,baseheight));
 	fb = (u16*)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, NULL, NULL);
 	globalcolormap = malloc(sizeof(byte)*(VID_GRADES*256));
 }

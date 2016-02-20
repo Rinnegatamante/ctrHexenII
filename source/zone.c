@@ -1085,9 +1085,6 @@ void Memory_Stats_f(void)
 	if (FH) fclose(FH);
 	free(GroupCount);
 	free(GroupSum);
-	free(GroupSum);
-	free(GroupSum);
-	free(GroupSum);
 }
 
 

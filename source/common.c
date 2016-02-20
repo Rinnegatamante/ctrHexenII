@@ -1424,6 +1424,8 @@ int COM_FindFile (char *filename, int *handle, FILE **file, qboolean override_pa
 							fseek (*file, pak->files[i].filepos, SEEK_SET);
 					}
 					com_filesize = pak->files[i].filelen;
+					free(netpath);
+					free(cachepath);
 					return com_filesize;
 				}
 		}
@@ -1646,8 +1648,7 @@ pack_t *COM_LoadPackFile (char *packfile)
 	int                     numpackfiles;
 	pack_t                  *pack;
 	int                     packhandle;
-	dpackfile_t*             info;
-	info = (dpackfile_t*)malloc(sizeof(dpackfile_t) * MAX_FILES_IN_PACK);
+	dpackfile_t             *info=malloc(sizeof(dpackfile_t) * MAX_FILES_IN_PACK);
 	unsigned short          crc;
 	if (Sys_FileOpenRead (packfile, &packhandle) == -1)
 	{

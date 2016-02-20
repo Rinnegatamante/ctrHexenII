@@ -250,6 +250,14 @@ void CL_ParseServerInfo (void)
 	if (i != PROTOCOL_VERSION)
 	{
 		Con_Printf ("Server returned version %i, not %i", i, PROTOCOL_VERSION);
+		for(i=0; i<MAX_MODELS; i++){
+			free(model_precache[i]);
+		}
+		free(model_precache);
+		for(i=0; i<MAX_SOUNDS; i++){
+			free(sound_precache[i]);
+		}
+		free(sound_precache);
 		return;
 	}
 
@@ -258,6 +266,14 @@ void CL_ParseServerInfo (void)
 	if (cl.maxclients < 1 || cl.maxclients > MAX_SCOREBOARD)
 	{
 		Con_Printf("Bad maxclients (%u) from server\n", cl.maxclients);
+		for(i=0; i<MAX_MODELS; i++){
+			free(model_precache[i]);
+		}
+		free(model_precache);
+		for(i=0; i<MAX_SOUNDS; i++){
+			free(sound_precache[i]);
+		}
+		free(sound_precache);
 		return;
 	}
 	cl.scores = Hunk_AllocName (cl.maxclients*sizeof(*cl.scores), "scores");
@@ -292,6 +308,14 @@ void CL_ParseServerInfo (void)
 		if (nummodels==MAX_MODELS)
 		{
 			Con_Printf ("Server sent too many model precaches\n");
+			for(i=0; i<MAX_MODELS; i++){
+				free(model_precache[i]);
+			}
+			free(model_precache);
+			for(i=0; i<MAX_SOUNDS; i++){
+				free(sound_precache[i]);
+			}
+			free(sound_precache);
 			return;
 		}
 		strcpy (model_precache[nummodels], str);
@@ -308,6 +332,14 @@ void CL_ParseServerInfo (void)
 		if (numsounds==MAX_SOUNDS)
 		{
 			Con_Printf ("Server sent too many sound precaches\n");
+			for(i=0; i<MAX_MODELS; i++){
+				free(model_precache[i]);
+			}
+			free(model_precache);
+			for(i=0; i<MAX_SOUNDS; i++){
+				free(sound_precache[i]);
+			}
+			free(sound_precache);
 			return;
 		}
 		strcpy (sound_precache[numsounds], str);
@@ -342,6 +374,14 @@ void CL_ParseServerInfo (void)
 		if (cl.model_precache[i] == NULL)
 		{
 			Con_Printf("Model %s not found\n", model_precache[i]);
+			for(i=0; i<MAX_MODELS; i++){
+				free(model_precache[i]);
+			}
+			free(model_precache);
+			for(i=0; i<MAX_SOUNDS; i++){
+				free(sound_precache[i]);
+			}
+			free(sound_precache);
 			return;
 		}
 		CL_KeepaliveMessage ();

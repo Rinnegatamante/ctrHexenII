@@ -314,7 +314,8 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel)
 	int			numsurfaces;
 	mplane_t	*pplane;
 	mvertex_t	*bverts=malloc(sizeof(mvertex_t)*MAX_BMODEL_VERTS);
-	bedge_t		*bedges=malloc(sizeof(mvertex_t)*MAX_BMODEL_EDGES), *pbedge;
+	bedge_t		*bedges=malloc(sizeof(bedge_t)*MAX_BMODEL_EDGES);
+	bedge_t		*pbedge;
 	medge_t		*pedge, *pedges;
 
 // FIXME: use bounding-box-based frustum clipping info?

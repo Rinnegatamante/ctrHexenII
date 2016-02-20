@@ -401,7 +401,7 @@ int main (int argc, char **argv)
 	Cbuf_AddText ("bind DOWNARROW invuse\n"); // Down
 	Cbuf_AddText ("bind LEFTARROW invleft\n"); // Left
 	Cbuf_AddText ("bind RIGHTARROW invright\n"); // Right
-	Cbuf_AddText ("sensitivity 5\n"); // Right Analog Sensitivity
+	Cbuf_AddText ("sensitivity 5\n"); // Analog Sensitivity
 	
 	oldtime = Sys_FloatTime() -0.1;
 	while (aptMainLoop())

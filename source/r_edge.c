@@ -1082,6 +1082,9 @@ void R_ScanEdges (qboolean Translucent)
 	{
 		D_DrawSurfaces (Translucent);
 	}
+	
+	free(basespans);
+	
 }
 
 

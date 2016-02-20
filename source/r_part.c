@@ -117,7 +117,6 @@ void R_InitParticles (void)
 		fread(transTable,1,65536,f);
 		fclose(f);
 	}
-
 }	
 
 #ifdef QUAKE2RJ
@@ -282,6 +281,7 @@ void R_ReadPointFile_f (void)
 	if (!f)
 	{
 		Con_Printf ("couldn't open %s\n", name);
+		free(name);
 		return;
 	}
 	

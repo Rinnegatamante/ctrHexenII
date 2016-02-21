@@ -1007,8 +1007,7 @@ void Memory_Stats_f(void)
 	hunk_t	*h, *next, *endlow, *starthigh, *endhigh;
 	int		count, sum, counter;
 	FILE *FH;
-	int *GroupCount=malloc(sizeof(int)*(NUM_GROUPS+1));
-	int *GroupSum=malloc(sizeof(int)*(NUM_GROUPS+1));
+	int GroupCount[NUM_GROUPS+1],GroupSum[NUM_GROUPS+1];
 	qboolean write_file;
 	short NumItems;
 
@@ -1083,8 +1082,6 @@ void Memory_Stats_f(void)
 	if (FH) fprintf(FH,"%-15s %-5i %i\n","Total",count,sum);
 
 	if (FH) fclose(FH);
-	free(GroupCount);
-	free(GroupSum);
 }
 
 

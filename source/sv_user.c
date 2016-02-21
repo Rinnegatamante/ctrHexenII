@@ -41,18 +41,16 @@ void SV_SetIdealPitch (void)
 	float	angleval, sinval, cosval;
 	trace_t	tr;
 	vec3_t	top, bottom;
-	float	*z=malloc(sizeof(float)*MAX_FORWARD);
+	float	z[MAX_FORWARD];
 	int		i, j;
 	int		step, dir, steps;
 	float save_hull;
 
 	if (!((int)sv_player->v.flags & FL_ONGROUND)){
-		free(z);
 		return;
 	}
 	
 	if (sv_player->v.movetype==MOVETYPE_FLY){
-		free(z);
 		return;
 	}
 	
@@ -78,7 +76,6 @@ void SV_SetIdealPitch (void)
 			(tr.fraction == 1))// near a dropoff
 		{
 			sv_player->v.hull = save_hull;
-			free(z);
 			return;	
 		}
 		z[i] = top[2] + tr.fraction*(bottom[2]-top[2]);
@@ -95,7 +92,6 @@ void SV_SetIdealPitch (void)
 			continue;
 
 		if (dir && ( step-dir > ON_EPSILON || step-dir < -ON_EPSILON ) ){
-			free(z);
 			return;		// mixed changes
 		}
 		
@@ -106,17 +102,14 @@ void SV_SetIdealPitch (void)
 	if (!dir)
 	{
 		sv_player->v.idealpitch = 0;
-		free(z);
 		return;
 	}
 	
 	if (steps < 2){
-		free(z);
 		return;
 	}
 
 	sv_player->v.idealpitch = -dir * sv_idealpitchscale.value;
-	free(z);
 }
 
 

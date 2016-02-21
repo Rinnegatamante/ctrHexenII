@@ -317,7 +317,7 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume,
     int		ent;
 #if RJNET
 	sizebuf_t   cm;
-	byte		*datagram_buf=malloc(sizeof(byte)*MAX_DATAGRAM);
+	byte datagram_buf[MAX_DATAGRAM];
 	
 	cm.data = datagram_buf;
 	cm.maxsize = sizeof(datagram_buf);
@@ -327,7 +327,6 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume,
 	if (strcasecmp(sample,"misc/null.wav") == 0)
 	{
 		SV_StopSound(entity,channel);
-		free(datagram_buf);
 		return;
 	}
 
@@ -341,7 +340,6 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume,
 		Sys_Error ("SV_StartSound: channel = %i", channel);
 
 	if (sv.datagram.cursize > MAX_DATAGRAM-16){
-		free(datagram_buf);
 		return;	
 	}
 
@@ -354,7 +352,6 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume,
     if ( sound_num == MAX_SOUNDS || !sv.sound_precache[sound_num] )
     {
         Con_Printf ("SV_StartSound: %s not precached\n", sample);
-		free(datagram_buf);
         return;
     }
     
@@ -420,8 +417,6 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume,
 		MSG_WriteCoord (&sv.datagram, entity->v.origin[i]+0.5*(entity->v.mins[i]+entity->v.maxs[i]));
 
 #endif
-
-	free(datagram_buf);
 	
 }           
 
@@ -515,7 +510,7 @@ void SV_ConnectClient (int clientnum)
 	client_t		*client;
 	int			edictnum;
 	struct qsocket_s *netconnection;
-	float			*spawn_parms=malloc(sizeof(float)*NUM_SPAWN_PARMS);
+	float		spawn_parms[NUM_SPAWN_PARMS];
 #if RJNET
 	int				entnum;
 	edict_t			*svent;
@@ -571,7 +566,6 @@ void SV_ConnectClient (int clientnum)
 		memcpy (client->spawn_parms, spawn_parms, sizeof(spawn_parms));
 
 	SV_SendServerinfo (client);
-	free(spawn_parms);
 }
 
 
@@ -709,8 +703,8 @@ void SV_PrepareClientEntities (client_t *client, edict_t *clent, sizebuf_t *msg)
 	vec3_t	org;
 	float	miss;
 	edict_t	*ent;
-	int	temp_index;
-	char	*NewName=malloc(sizeof(char)*MAX_QPATH);
+	int	temp_index;	
+	char	NewName[MAX_QPATH];
 	long	flagtest;
 	int	position = 0;
 	int	client_num;
@@ -719,8 +713,7 @@ void SV_PrepareClientEntities (client_t *client, edict_t *clent, sizebuf_t *msg)
 	client_state2_t  *state;
 	entity_state2_t *ref_ent,*set_ent,build_ent;
 	qboolean FoundInList,DoRemove,DoPlayer,DoMonsters,DoMissiles,DoMisc,IgnoreEnt;
-	short	*RemoveList=malloc(sizeof(short)*MAX_CLIENT_STATES);
-	short	NumToRemove;
+	short	RemoveList[MAX_CLIENT_STATES],NumToRemove;
 
 
 	client_num = client-svs.clients;
@@ -1090,8 +1083,6 @@ skipA:
 	for(i=0;i<NumToRemove;i++)
 		MSG_WriteShort(msg,RemoveList[i]);
 		
-	free(NewName);
-	free(RemoveList);
 }
 
 /*

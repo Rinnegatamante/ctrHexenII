@@ -153,9 +153,7 @@ Con_Init
 void Con_Init (void)
 {
 #define MAXGAMEDIRLEN	1000
-	Sys_Printf("test");
 	char	temp[MAXGAMEDIRLEN+1];
-	Sys_Printf("done");
 	char	*t2 = "/qconsole.log";
 
 	con_debuglog = COM_CheckParm("-condebug");
@@ -168,18 +166,12 @@ void Con_Init (void)
 			unlink (temp);
 		}
 	}
-	Sys_Printf("test2");
 	con_text = Hunk_AllocName (CON_TEXTSIZE<<1, "context");
-	Sys_Printf("test5");
 	Con_Clear_f();
-	Sys_Printf("tes7");
 	con_linewidth = -1;
 	consoleClear();
-	Sys_Printf("teadst2");
 	Con_CheckResize ();
-	Sys_Printf("test3");
 	Con_Printf ("Console initialized.\n");
-	Sys_Printf("tes6t");
 
 //
 // register our commands

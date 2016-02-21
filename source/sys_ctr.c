@@ -411,5 +411,8 @@ int main (int argc, char **argv)
 		oldtime = time;
 	}
 	gfxExit();
+	hidExit();
+	sdmcExit();
+	fsExit();
 	return 0;
 }

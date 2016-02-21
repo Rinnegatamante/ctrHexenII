@@ -640,12 +640,19 @@ void Host_Loadgame_f (void)
 	int attempts = 0;
 	char *message;
 
-	if (cmd_source != src_command)
+	if (cmd_source != src_command){
+		free(mapname);
+		free(str);
+		free(spawn_parms);
 		return;
-
+	}
+	
 	if (Cmd_Argc() != 2)
 	{
 		Con_Printf ("load <savename> : load a game\n");
+		free(mapname);
+		free(str);
+		free(spawn_parms);
 		return;
 	}
 
@@ -666,6 +673,9 @@ void Host_Loadgame_f (void)
 	if (!f)
 	{
 		Con_Printf ("ERROR: couldn't open %s\n",dest);
+		free(mapname);
+		free(str);
+		free(spawn_parms);
 		return;
 	}
 
@@ -675,6 +685,9 @@ void Host_Loadgame_f (void)
 	{
 		fclose (f);
 		Con_Printf ("Savegame is version %i, not %i\n", version, SAVEGAME_VERSION);
+		free(mapname);
+		free(str);
+		free(spawn_parms);
 		return;
 	}
 	fscanf (f, "%s\n", str);
@@ -753,8 +766,12 @@ void Host_Loadgame_f (void)
 		{
 			goto retry;
 		}
-		else
+		else{
+			free(mapname);
+			free(str);
+			free(spawn_parms);
 			return;
+		}
 	}
 	
 	LoadGamestate (mapname, NULL, 2);
@@ -787,7 +804,8 @@ void Host_Loadgame_f (void)
 #ifdef QUAKE2RJ
 void SaveGamestate(qboolean ClientsOnly)
 {
-//	char	name[MAX_OSPATH],tempdir[MAX_OSPATH];
+	char	*name=malloc(sizeof(char)*MAX_OSPATH);
+	char	*tempdir=malloc(sizeof(char)*MAX_OSPATH);
 	FILE	*f;
 	int		i;
 	char	*comment = malloc(sizeof(char)*(SAVEGAME_COMMENT_LENGTH+1));
@@ -824,6 +842,9 @@ retry:
 	if (!f)
 	{
 		Con_Printf ("ERROR: couldn't open %s\n",name);
+		free(comment);
+		free(tempdir);
+		free(name);
 		return;
 	}
 	
@@ -899,6 +920,8 @@ retry:
 	}
 	
 	free(comment);
+	free(tempdir);
+	free(name);
 	
 }
 
@@ -939,7 +962,8 @@ void RestoreClients(void)
 
 int LoadGamestate(char *level, char *startspot, int ClientsMode)
 {
-//	char	name[MAX_OSPATH],tempdir[MAX_OSPATH];
+	char	*name = malloc(sizeof(char)*MAX_OSPATH);
+	char	*tempdir = malloc(sizeof(char)*MAX_OSPATH);
 	FILE	*f;
 	char	*mapname = malloc(sizeof(char)*MAX_QPATH);
 	float	time, sk;
@@ -948,7 +972,7 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 	edict_t	*ent;
 	int		entnum;
 	int		version;
-//	float	spawn_parms[NUM_SPAWN_PARMS];
+	float	*spawn_parms = malloc(sizeof(float)*NUM_SPAWN_PARMS);
 	qboolean auto_correct = false;
 
 	sprintf(tempdir,"%s/",com_savedir);
@@ -970,7 +994,12 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 	{
 		if (ClientsMode == 2)
 			Con_Printf ("ERROR: couldn't open %s\n",name);
-
+		
+		free(spawn_parms);
+		free(mapname);
+		free(name);
+		free(tempdir);
+		free(str);
 		return -1;
 	}
 
@@ -980,6 +1009,11 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 	{
 		fclose (f);
 		Con_Printf ("Savegame is version %i, not %i\n", version, SAVEGAME_VERSION);
+		free(spawn_parms);
+		free(mapname);
+		free(name);
+		free(tempdir);
+		free(str);
 		return -1;
 	}
 
@@ -997,6 +1031,11 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 		if (!sv.active)
 		{
 			Con_Printf ("Couldn't load map\n");
+			free(spawn_parms);
+			free(mapname);
+			free(name);
+			free(tempdir);
+			free(str);
 			return -1;
 		}
 
@@ -1100,8 +1139,11 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 		Con_DPrintf("*** Auto-corrected model indexes!\n");
 	}
 
-	free(str);
+	free(spawn_parms);
 	free(mapname);
+	free(name);
+	free(tempdir);
+	free(str);
 	
 	return 0;
 }
@@ -1116,11 +1158,15 @@ void Host_Changelevel2_f (void)
 	if (Cmd_Argc() < 2)
 	{
 		Con_Printf ("changelevel2 <levelname> : continue game on a new level in the unit\n");
+		free(_startspot);
+		free(level);
 		return;
 	}
 	if (!sv.active || cls.demoplayback)
 	{
 		Con_Printf ("Only the server may changelevel\n");
+		free(_startspot);
+		free(level);
 		return;
 	}
 

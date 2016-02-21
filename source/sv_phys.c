@@ -525,6 +525,8 @@ void SV_PushMove (edict_t *pusher, float movetime, qboolean update_time)
 	{
 		if (update_time)
 			pusher->v.ltime += movetime;
+		free(moved_edict);
+		free(moved_from);
 		return;
 	}
 
@@ -1131,6 +1133,8 @@ Con_DPrintf("%f %f %f\n", pusher->v.angles[0], pusher->v.angles[1], pusher->v.an
 					
 					SV_LinkEdict (moved_edict[i], false);
 				}
+				free(moved_edict);
+				free(moved_from);
 				return;
 			}
 //		}

@@ -965,7 +965,7 @@ void PR_Profile_f(void)
 	int total;
 	int funcCount;
 	qboolean byHC;
-	char *saveName=malloc(sizeof(char)*128);
+	char saveName[128];
 	FILE *saveFile;
 	int currentFile;
 	int bestFile;
@@ -1147,7 +1147,6 @@ void PR_Profile_f(void)
 	{
 		fclose(saveFile);
 	}
-	free(saveName);
 }
 
 //==========================================================================

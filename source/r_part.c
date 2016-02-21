@@ -271,7 +271,7 @@ void R_ReadPointFile_f (void)
 	int		r;
 	int		c;
 	particle_t	*p;
-	char	*name=malloc(sizeof(char)*MAX_OSPATH);
+	char	name[MAX_OSPATH];
 	byte	color;
 	
 	color = (byte)Cvar_VariableValue("leak_color");
@@ -281,7 +281,6 @@ void R_ReadPointFile_f (void)
 	if (!f)
 	{
 		Con_Printf ("couldn't open %s\n", name);
-		free(name);
 		return;
 	}
 	
@@ -310,7 +309,6 @@ void R_ReadPointFile_f (void)
 
 	fclose (f);
 	Con_Printf ("%i points read\n", c);
-	free(name);
 }
 
 /*

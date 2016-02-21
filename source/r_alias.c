@@ -69,10 +69,8 @@ qboolean R_AliasCheckBBox (void)
 	int					i, flags, frame, numv;
 	aliashdr_t			*pahdr;
 	float				zi, basepts[8][3], v0, v1, frac;
-	finalvert_t			*pv0, *pv1;
-	finalvert_t			*viewpts=malloc(sizeof(finalvert_t)*16);
-	auxvert_t			*pa0, *pa1;
-	auxvert_t			*viewaux=malloc(sizeof(auxvert_t)*16);
+	finalvert_t			*pv0, *pv1, viewpts[16];
+	auxvert_t			*pa0, *pa1, viewaux[16];
 	maliasframedesc_t	*pframedesc;
 	qboolean			zclipped, zfullyclipped;
 	unsigned			anyclip, allclip;
@@ -147,8 +145,6 @@ qboolean R_AliasCheckBBox (void)
 		
 	if (zfullyclipped)
 	{
-		free(viewaux);
-		free(viewpts);
 		return false;	// everything was near-z-clipped
 	}
 
@@ -214,11 +210,7 @@ qboolean R_AliasCheckBBox (void)
 		allclip &= flags;
 	}
 
-	if (allclip){
-		free(viewaux);
-		free(viewpts);
-		return false;	// trivial reject off one side
-	}
+	if (allclip) return false;	// trivial reject off one side
 
 	currententity->trivial_accept = !anyclip & !zclipped;
 
@@ -230,8 +222,6 @@ qboolean R_AliasCheckBBox (void)
 		}
 	}
 
-	free(viewaux);
-	free(viewpts);
 	return true;
 }
 
@@ -749,7 +739,7 @@ void R_AliasSetupSkin (void)
 	float			*pskinintervals, fullskininterval;
 	float			skintargettime, skintime;
 	qpic_t			*stonepic;
-	char *temp=malloc(40*sizeof(char));
+	char 			temp[40];
 	int			a_skinwidth;
 
 	skinnum = currententity->skinnum;
@@ -812,7 +802,6 @@ void R_AliasSetupSkin (void)
 		r_affinetridesc.seamfixupX16 =  (a_skinwidth >> 1) << 16;
 		r_affinetridesc.skinheight = pmdl->skinheight;
 	}
-	free(temp);
 }
 
 /*

@@ -33,8 +33,8 @@ void D_WarpScreen (void)
 	int		*turb;
 	int		*col;
 	byte	**row;
-	byte	**rowptr=malloc(sizeof(byte*)*(MAXHEIGHT+(AMP2*2)));
-	int		*column=malloc(sizeof(int)*(MAXWIDTH+(AMP2*2)));
+	byte	*rowptr[MAXHEIGHT+(AMP2*2)];
+	int		column[MAXWIDTH+(AMP2*2)];
 	float	wratio, hratio;
 
 	w = r_refdef.vrect.width;
@@ -71,9 +71,6 @@ void D_WarpScreen (void)
 			dest[u+3] = row[turb[u+3]][col[u+3]];
 		}
 	}
-	
-	free(column);
-	free(rowptr);
 	
 }
 

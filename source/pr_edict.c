@@ -725,7 +725,7 @@ ED_ParseGlobals
 */
 void ED_ParseGlobals (char *data)
 {
-	char	*keyname=malloc(64*sizeof(char));
+	char	keyname[64];
 	ddef_t	*key;
 
 	while (1)
@@ -758,7 +758,6 @@ void ED_ParseGlobals (char *data)
 			Host_Error ("ED_ParseGlobals: parse error");
 	}
 	
-	free(keyname);
 }
 
 //============================================================================
@@ -807,7 +806,7 @@ returns false if error
 qboolean	ED_ParseEpair (void *base, ddef_t *key, char *s)
 {
 	int		i;
-	char	*string=malloc(128*sizeof(char));
+	char	string[128];
 	ddef_t	*def;
 	char	*v, *w;
 	void	*d;
@@ -867,7 +866,6 @@ qboolean	ED_ParseEpair (void *base, ddef_t *key, char *s)
 		break;
 	}
 	
-	free(string);
 	return true;
 }
 
@@ -885,7 +883,7 @@ char *ED_ParseEdict (char *data, edict_t *ent)
 	ddef_t		*key;
 	qboolean	anglehack;
 	qboolean	init;
-	char		*keyname=malloc(sizeof(char)*256);
+	char		keyname[256];
 	int			n;
 
 	init = false;
@@ -976,7 +974,6 @@ sprintf (com_token, "0 %s 0", temp);
 		ent->free = true;
 
 		
-	free(keyname);
 	return data;
 }
 
@@ -1155,9 +1152,7 @@ void PR_LoadProgs (void)
 {
 	int	i,j;
 	FILE	*f;
-	char	*mapname=malloc(sizeof(char)*MAX_QPATH);
-	char	*progname=malloc(sizeof(char)*MAX_OSPATH);
-	char	*finalprogname=malloc(sizeof(char)*MAX_OSPATH);
+	char	mapname[MAX_QPATH], progname[MAX_OSPATH], finalprogname[MAX_OSPATH];
 
 // flush the non-C variable lookup cache
 	for (i=0 ; i<GEFV_CACHESIZE ; i++)
@@ -1277,9 +1272,6 @@ void PR_LoadProgs (void)
 	pr_global_struct->cl_playerclass = cl_playerclass.value;
 #endif
 	
-	free(progname);
-	free(mapname);
-	free(finalprogname);
 }
 
 

@@ -263,7 +263,7 @@ void PF_setpuzzlemodel (void)
 	char	*m, **check;
 	model_t	*mod;
 	int		i;
-	char	*NewName=malloc(sizeof(char)*256);
+	char	NewName[256];
 
 	e = G_EDICT(OFS_PARM0);
 	m = G_STRING(OFS_PARM1);
@@ -295,7 +295,6 @@ void PF_setpuzzlemodel (void)
 	else
 		SetMinMaxSize (e, vec3_origin, vec3_origin, true);
 		
-	free(NewName);
 }
 
 /*

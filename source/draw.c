@@ -99,7 +99,7 @@ qpic_t	*Draw_CachePic (char *path)
 void Draw_Init (void)
 {
 	int		i;
-	char *temp=malloc(sizeof(char)*MAX_QPATH);
+	char temp[MAX_QPATH];
 
 	draw_smallchars = W_GetLumpName("tinyfont");
 //	draw_chars = W_GetLumpName ("conchars");
@@ -122,7 +122,6 @@ void Draw_Init (void)
 	r_rectdesc.ptexbytes = draw_backtile->data;
 	r_rectdesc.rowbytes = draw_backtile->width;
 	
-	free(temp);
 }
 
 

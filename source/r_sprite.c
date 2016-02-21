@@ -39,7 +39,7 @@ Throws out the back side
 int R_ClipSpriteFace (int nump, clipplane_t *pclipplane)
 {
 	int		i, outcount;
-	float	*dists=malloc(sizeof(float)*(MAXWORKINGVERTS+1));
+	float	dists[MAXWORKINGVERTS+1];
 	float	frac, clipdist, *pclipnormal;
 	float	*in, *instep, *outstep, *vert2;
 
@@ -105,7 +105,6 @@ int R_ClipSpriteFace (int nump, clipplane_t *pclipplane)
 		outcount++;
 	}	
 	
-	free(dists);
 	return outcount;
 }
 

@@ -178,6 +178,10 @@ void Sys_Error (char *error, ...)
 			break;
 	}
 	Host_Shutdown();
+	gfxExit();
+	hidExit();
+	sdmcExit();
+	fsExit();
 	exit(1);
 }
 
@@ -198,6 +202,9 @@ void Sys_Quit (void)
 {
 	Host_Shutdown();
 	gfxExit();
+	hidExit();
+	sdmcExit();
+	fsExit();
 	exit (0);
 }
 
@@ -410,6 +417,7 @@ int main (int argc, char **argv)
 		Host_Frame (time - oldtime);
 		oldtime = time;
 	}
+	free(parms.membase);
 	gfxExit();
 	hidExit();
 	sdmcExit();

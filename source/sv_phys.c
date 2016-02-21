@@ -251,6 +251,7 @@ int SV_FlyMove (edict_t *ent, float time, trace_t *steptrace)
 		if (trace.allsolid)
 		{	// entity is trapped in another solid
 			VectorCopy (vec3_origin, ent->v.velocity);
+			free(planes);
 			return 3;
 		}
 
@@ -304,6 +305,7 @@ int SV_FlyMove (edict_t *ent, float time, trace_t *steptrace)
 		if (numplanes >= MAX_CLIP_PLANES)
 		{	// this shouldn't really happen
 			VectorCopy (vec3_origin, ent->v.velocity);
+			free(planes);
 			return 3;
 		}
 
@@ -336,6 +338,7 @@ int SV_FlyMove (edict_t *ent, float time, trace_t *steptrace)
 			{
 //				Con_Printf ("clip velocity, numplanes == %i\n",numplanes);
 				VectorCopy (vec3_origin, ent->v.velocity);
+				free(planes);
 				return 7;
 			}
 			CrossProduct (planes[0], planes[1], dir);
@@ -350,6 +353,7 @@ int SV_FlyMove (edict_t *ent, float time, trace_t *steptrace)
 		if (DotProduct (ent->v.velocity, primal_velocity) <= 0)
 		{
 			VectorCopy (vec3_origin, ent->v.velocity);
+			free(planes);
 			return blocked;
 		}
 	}

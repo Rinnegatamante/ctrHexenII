@@ -1474,6 +1474,8 @@ int COM_FindFile (char *filename, int *handle, FILE **file, qboolean override_pa
 				Sys_FileClose (i);
 				*file = fopen (netpath, "rb");
 			}
+			free(netpath);
+			free(cachepath);
 			return com_filesize;
 		}
 		
@@ -1653,6 +1655,7 @@ pack_t *COM_LoadPackFile (char *packfile)
 	if (Sys_FileOpenRead (packfile, &packhandle) == -1)
 	{
         Sys_Printf ("Couldn't open %s\n", packfile);
+		free(info);
 		return NULL;
 	}
 	Sys_FileRead (packhandle, (void *)&header, sizeof(header));

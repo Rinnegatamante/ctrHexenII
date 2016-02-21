@@ -230,14 +230,8 @@ void CL_ParseServerInfo (void)
 	char	*str;
 	int		i;
 	int		nummodels, numsounds;
-	char	**model_precache=malloc(sizeof(char*)*MAX_MODELS);
-	for(i=0; i<MAX_MODELS; i++){
-		model_precache[i] = malloc(sizeof(char)*MAX_QPATH);
-	}
-	char	**sound_precache=malloc(sizeof(char*)*MAX_SOUNDS);
-	for(i=0; i<MAX_SOUNDS; i++){
-		sound_precache[i] = malloc(sizeof(char)*MAX_QPATH);
-	}
+	static char	model_precache[MAX_MODELS][MAX_QPATH];
+	static char	sound_precache[MAX_SOUNDS][MAX_QPATH];
 	
 	Con_DPrintf ("Serverinfo packet received.\n");
 //
@@ -250,14 +244,6 @@ void CL_ParseServerInfo (void)
 	if (i != PROTOCOL_VERSION)
 	{
 		Con_Printf ("Server returned version %i, not %i", i, PROTOCOL_VERSION);
-		for(i=0; i<MAX_MODELS; i++){
-			free(model_precache[i]);
-		}
-		free(model_precache);
-		for(i=0; i<MAX_SOUNDS; i++){
-			free(sound_precache[i]);
-		}
-		free(sound_precache);
 		return;
 	}
 
@@ -266,14 +252,6 @@ void CL_ParseServerInfo (void)
 	if (cl.maxclients < 1 || cl.maxclients > MAX_SCOREBOARD)
 	{
 		Con_Printf("Bad maxclients (%u) from server\n", cl.maxclients);
-		for(i=0; i<MAX_MODELS; i++){
-			free(model_precache[i]);
-		}
-		free(model_precache);
-		for(i=0; i<MAX_SOUNDS; i++){
-			free(sound_precache[i]);
-		}
-		free(sound_precache);
 		return;
 	}
 	cl.scores = Hunk_AllocName (cl.maxclients*sizeof(*cl.scores), "scores");
@@ -308,14 +286,6 @@ void CL_ParseServerInfo (void)
 		if (nummodels==MAX_MODELS)
 		{
 			Con_Printf ("Server sent too many model precaches\n");
-			for(i=0; i<MAX_MODELS; i++){
-				free(model_precache[i]);
-			}
-			free(model_precache);
-			for(i=0; i<MAX_SOUNDS; i++){
-				free(sound_precache[i]);
-			}
-			free(sound_precache);
 			return;
 		}
 		strcpy (model_precache[nummodels], str);
@@ -332,14 +302,6 @@ void CL_ParseServerInfo (void)
 		if (numsounds==MAX_SOUNDS)
 		{
 			Con_Printf ("Server sent too many sound precaches\n");
-			for(i=0; i<MAX_MODELS; i++){
-				free(model_precache[i]);
-			}
-			free(model_precache);
-			for(i=0; i<MAX_SOUNDS; i++){
-				free(sound_precache[i]);
-			}
-			free(sound_precache);
 			return;
 		}
 		strcpy (sound_precache[numsounds], str);
@@ -374,14 +336,6 @@ void CL_ParseServerInfo (void)
 		if (cl.model_precache[i] == NULL)
 		{
 			Con_Printf("Model %s not found\n", model_precache[i]);
-			for(i=0; i<MAX_MODELS; i++){
-				free(model_precache[i]);
-			}
-			free(model_precache);
-			for(i=0; i<MAX_SOUNDS; i++){
-				free(sound_precache[i]);
-			}
-			free(sound_precache);
 			return;
 		}
 		CL_KeepaliveMessage ();
@@ -423,15 +377,6 @@ void CL_ParseServerInfo (void)
 	Hunk_Check ();		// make sure nothing is hurt
 	
 	noclip_anglehack = false;		// noclip is turned off at start	
-	
-	for(i=0; i<MAX_MODELS; i++){
-		free(model_precache[i]);
-	}
-	free(model_precache);
-	for(i=0; i<MAX_SOUNDS; i++){
-		free(sound_precache[i]);
-	}
-	free(sound_precache);
 	
 }
 

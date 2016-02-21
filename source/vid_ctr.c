@@ -23,10 +23,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "d_local.h"
 
 #include <3ds.h>
+#define basewidth 400
+#define baseheight 240
 
 viddef_t	vid;				// global video state
 
-int	basewidth, baseheight;
 byte	*vid_buffer;
 short	*zbuffer;
 byte*	surfcache;
@@ -60,8 +61,6 @@ void	VID_ShiftPalette (unsigned char *palette)
 
 void	VID_Init (unsigned char *palette)
 {
-	baseheight = 240;
-	basewidth = 400;
 
 	vid_buffer = malloc(sizeof(byte) * basewidth * baseheight);
 	zbuffer = malloc(sizeof(short) * basewidth * baseheight);
@@ -84,6 +83,8 @@ void	VID_Init (unsigned char *palette)
 
 void	VID_Shutdown (void)
 {
+	free(vid_buffer);
+	free(zbuffer);
 	free(surfcache);
 	free(globalcolormap);
 }

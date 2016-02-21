@@ -376,7 +376,7 @@ int main (int argc, char **argv)
 
 	static quakeparms_t    parms;
 	Sys_Printf("Allocating membase...\n");
-	parms.memsize = 20*1024*1024;
+	parms.memsize = 24*1024*1024;
 	parms.membase = malloc(parms.memsize);
 	parms.basedir = ".";
 	

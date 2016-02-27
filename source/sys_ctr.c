@@ -145,6 +145,11 @@ int     Sys_FileTime (char *path)
 
 void Sys_mkdir (char *path)
 {
+	FS_Archive sdmcArchive = (FS_Archive){0x9, (FS_Path){PATH_EMPTY, 1, (u8*)""}};
+	FSUSER_OpenArchive( &sdmcArchive);
+	FS_Path filePath=fsMakePath(PATH_ASCII, &path[5]);
+	FSUSER_CreateDirectory(sdmcArchive,filePath, FS_ATTRIBUTE_DIRECTORY);
+	FSUSER_CloseArchive( &sdmcArchive);
 }
 
 

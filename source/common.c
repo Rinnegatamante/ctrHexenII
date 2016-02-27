@@ -1762,7 +1762,7 @@ COM_InitFilesystem
 void COM_InitFilesystem (void)
 {
 	int             i, j;
-	char    *basedir=malloc(sizeof(char)*MAX_OSPATH);
+	char 			basedir[MAX_OSPATH];
 	searchpath_t    *search;
 
 //
@@ -1862,7 +1862,6 @@ void COM_InitFilesystem (void)
 	{
 		strcpy(com_savedir,com_gamedir);
 	}
-	free(basedir);
 }
 
 

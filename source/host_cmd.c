@@ -486,9 +486,7 @@ void Host_SavegameComment (char *text)
 			text[i] = '_';
 	text[SAVEGAME_COMMENT_LENGTH] = '\0';
 }
-void DeleteFile(char* path) {
-	unlink (path);
-}
+
 /*
 ===============
 Host_Savegame_f
@@ -563,14 +561,12 @@ void Host_Savegame_f (void)
 	sprintf(tempdir,"%s/",com_savedir);
 
 	sprintf (name, "%sclients.gip",tempdir);
-	DeleteFile(name);
 
 	sprintf (name, "%s*.gip", tempdir);
-	sprintf (dest, "%s/%s",com_savedir, Cmd_Argv(1));
-	strcat  (dest, "/");
+	sprintf (dest, "%s/%s/",com_savedir, Cmd_Argv(1));
 	Con_Printf ("Saving game to %s...\n", dest);
 	
-	error_state = CL_CopyFiles(tempdir, "*.gip", dest);
+	error_state = CL_CopyFiles(tempdir, name, dest);
 
 	sprintf(dest,"%s/%s/info.dat",com_savedir, Cmd_Argv(1));
 	f = fopen (dest, "w");
@@ -626,10 +622,12 @@ Host_Loadgame_f
 void Host_Loadgame_f (void)
 {
 	FILE	*f;
-	char	*mapname = malloc(sizeof(char)*MAX_OSPATH);
+	char	*mapname = malloc(sizeof(char)*MAX_QPATH);
 	float	time, tfloat;
 	char	*str = malloc(sizeof(char)*32768);
-	int	i;
+	char	*start;
+	int		i, r;
+	int		entnum;
 	edict_t	*ent;
 	int	version;
 	float	tempf;
@@ -641,18 +639,18 @@ void Host_Loadgame_f (void)
 	char *message;
 
 	if (cmd_source != src_command){
+		free(spawn_parms);
 		free(mapname);
 		free(str);
-		free(spawn_parms);
 		return;
 	}
 	
 	if (Cmd_Argc() != 2)
 	{
 		Con_Printf ("load <savename> : load a game\n");
+		free(spawn_parms);
 		free(mapname);
 		free(str);
-		free(spawn_parms);
 		return;
 	}
 
@@ -673,21 +671,21 @@ void Host_Loadgame_f (void)
 	if (!f)
 	{
 		Con_Printf ("ERROR: couldn't open %s\n",dest);
+		free(spawn_parms);
 		free(mapname);
 		free(str);
-		free(spawn_parms);
 		return;
 	}
-
+	
 	fscanf (f, "%i\n", &version);
 
 	if (version != SAVEGAME_VERSION)
 	{
 		fclose (f);
 		Con_Printf ("Savegame is version %i, not %i\n", version, SAVEGAME_VERSION);
+		free(spawn_parms);
 		free(mapname);
 		free(str);
-		free(spawn_parms);
 		return;
 	}
 	fscanf (f, "%s\n", str);
@@ -742,17 +740,14 @@ void Host_Loadgame_f (void)
 	fscanf (f, "%d\n",&info_mask2);
 
 	fclose (f);
-
 	CL_RemoveGIPFiles(tempdir);
 
 	retry:
 	attempts++;
 
 	sprintf (name, "%s/%s/*.gip", com_savedir, Cmd_Argv(1));
-	sprintf (dest, "%s/%s",com_savedir, Cmd_Argv(1));
-	strcat  (dest, "/");
-	
-	error_state = CL_CopyFiles(dest, "*.gip", tempdir);
+	sprintf (dest, "%s/%s/",com_savedir, Cmd_Argv(1));
+	error_state = CL_CopyFiles(dest, name, tempdir);
 
 	if (error_state)
 	{
@@ -767,19 +762,16 @@ void Host_Loadgame_f (void)
 			goto retry;
 		}
 		else{
+			free(spawn_parms);
 			free(mapname);
 			free(str);
-			free(spawn_parms);
 			return;
 		}
 	}
-	
 	LoadGamestate (mapname, NULL, 2);
-
 	SV_SaveSpawnparms ();
-
+	sv.max_edicts = MAX_EDICTS;
 	ent = EDICT_NUM(1);
-
 	Cvar_SetValue ("_cl_playerclass", ent->v.playerclass);//this better be the same as above...
 
 	// this may be rudundant with the setting in PR_LoadProgs, but not sure so its here too
@@ -795,20 +787,19 @@ void Host_Loadgame_f (void)
 		CL_EstablishConnection ("local");
 		Host_Reconnect_f ();
 	}
-	
-	free(mapname);
 	free(spawn_parms);
+	free(mapname);
 	free(str);
 }
 
 #ifdef QUAKE2RJ
 void SaveGamestate(qboolean ClientsOnly)
 {
-	char	*name=malloc(sizeof(char)*MAX_OSPATH);
-	char	*tempdir=malloc(sizeof(char)*MAX_OSPATH);
+//	char	name[MAX_OSPATH];
+//	char	tempdir[MAX_OSPATH];
 	FILE	*f;
 	int		i;
-	char	*comment = malloc(sizeof(char)*(SAVEGAME_COMMENT_LENGTH+1));
+	char	comment[SAVEGAME_COMMENT_LENGTH+1];
 	edict_t	*ent;
 	int start,end;
 	qboolean error_state = false;
@@ -842,9 +833,6 @@ retry:
 	if (!f)
 	{
 		Con_Printf ("ERROR: couldn't open %s\n",name);
-		free(comment);
-		free(tempdir);
-		free(name);
 		return;
 	}
 	
@@ -919,10 +907,6 @@ retry:
 		}
 	}
 	
-	free(comment);
-	free(tempdir);
-	free(name);
-	
 }
 
 void RestoreClients(void)
@@ -962,17 +946,18 @@ void RestoreClients(void)
 
 int LoadGamestate(char *level, char *startspot, int ClientsMode)
 {
-	char	*name = malloc(sizeof(char)*MAX_OSPATH);
-	char	*tempdir = malloc(sizeof(char)*MAX_OSPATH);
+//	char	*name = malloc(sizeof(char)*MAX_OSPATH);
+//	char	*tempdir = malloc(sizeof(char)*MAX_OSPATH);
 	FILE	*f;
-	char	*mapname = malloc(sizeof(char)*MAX_QPATH);
+	char	*mapname = malloc(sizeof(char)*MAX_OSPATH);
 	float	time, sk;
-	char	*str = malloc(32768*sizeof(char)), *start;
+	char	*str = malloc(sizeof(char)*32768);
+	char	*start;
 	int		i, r;
 	edict_t	*ent;
 	int		entnum;
 	int		version;
-	float	*spawn_parms = malloc(sizeof(float)*NUM_SPAWN_PARMS);
+	//float	spawn_parms[NUM_SPAWN_PARMS];
 	qboolean auto_correct = false;
 
 	sprintf(tempdir,"%s/",com_savedir);
@@ -995,11 +980,8 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 		if (ClientsMode == 2)
 			Con_Printf ("ERROR: couldn't open %s\n",name);
 		
-		free(spawn_parms);
-		free(mapname);
-		free(name);
-		free(tempdir);
 		free(str);
+		free(mapname);
 		return -1;
 	}
 
@@ -1009,11 +991,8 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 	{
 		fclose (f);
 		Con_Printf ("Savegame is version %i, not %i\n", version, SAVEGAME_VERSION);
-		free(spawn_parms);
-		free(mapname);
-		free(name);
-		free(tempdir);
 		free(str);
+		free(mapname);
 		return -1;
 	}
 
@@ -1031,11 +1010,8 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 		if (!sv.active)
 		{
 			Con_Printf ("Couldn't load map\n");
-			free(spawn_parms);
-			free(mapname);
-			free(name);
-			free(tempdir);
 			free(str);
+			free(mapname);
 			return -1;
 		}
 
@@ -1138,35 +1114,27 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 	{
 		Con_DPrintf("*** Auto-corrected model indexes!\n");
 	}
-
-	free(spawn_parms);
-	free(mapname);
-	free(name);
-	free(tempdir);
-	free(str);
 	
+	free(str);
+	free(mapname);
 	return 0;
 }
 
 // changing levels within a unit
 void Host_Changelevel2_f (void)
 {
-	char	*level = malloc(MAX_QPATH*sizeof(char));;
-	char	*_startspot = malloc(MAX_QPATH*sizeof(char));
+	char	level[MAX_QPATH];
+	char	_startspot[MAX_QPATH];
 	char	*startspot;
 
 	if (Cmd_Argc() < 2)
 	{
 		Con_Printf ("changelevel2 <levelname> : continue game on a new level in the unit\n");
-		free(_startspot);
-		free(level);
 		return;
 	}
 	if (!sv.active || cls.demoplayback)
 	{
 		Con_Printf ("Only the server may changelevel\n");
-		free(_startspot);
-		free(level);
 		return;
 	}
 
@@ -1191,9 +1159,6 @@ void Host_Changelevel2_f (void)
 		SV_SpawnServer (level, startspot);
 		RestoreClients();
 	}
-	
-	free(_startspot);
-	free(level);
 	
 }
 #endif

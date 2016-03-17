@@ -2119,19 +2119,19 @@ void M_Options_Key (int k)
 		case OPT_DEFAULTS:
 			Cbuf_AddText ("exec default.cfg\n");
 			
-			// Set default PSVITA controls
+			// Set default 3DS controls
 			Cbuf_AddText ("unbindall\n");
-			Cbuf_AddText ("bind CROSS +jump\n"); // Cross
-			Cbuf_AddText ("bind SQUARE +attack\n"); // Square
-			Cbuf_AddText ("bind CIRCLE +jump\n"); // Circle
-			Cbuf_AddText ("bind TRIANGLE \"impulse 10\"\n"); // Triangle
-			Cbuf_AddText ("bind LTRIGGER +crouch\n"); // Left Trigger
-			Cbuf_AddText ("bind RTRIGGER +attack\n"); // Right Trigger
+			Cbuf_AddText ("bind b +jump\n"); // Cross
+			Cbuf_AddText ("bind y +attack\n"); // Square
+			Cbuf_AddText ("bind a +jump\n"); // Circle
+			Cbuf_AddText ("bind x \"impulse 10\"\n"); // Triangle
+			Cbuf_AddText ("bind l +crouch\n"); // Left Trigger
+			Cbuf_AddText ("bind r +attack\n"); // Right Trigger
 			Cbuf_AddText ("bind UPARROW +showinfo\n"); // Up
 			Cbuf_AddText ("bind DOWNARROW invuse\n"); // Down
 			Cbuf_AddText ("bind LEFTARROW invleft\n"); // Left
 			Cbuf_AddText ("bind RIGHTARROW invright\n"); // Right
-			Cbuf_AddText ("sensitivity 5\n"); // Right Analog Sensitivity
+			Cbuf_AddText ("sensitivity 5\n"); // Analog Sensitivity
 			
 			break;
 		default:

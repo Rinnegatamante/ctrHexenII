@@ -1139,7 +1139,7 @@ void M_ScanSaves (void)
 	{
 		strcpy (m_filenames[i], "--- UNUSED SLOT ---");
 		loadable[i] = false;
-		sprintf (name, "%s/s%i/info.dat", com_gamedir, i);
+		sprintf (name, "%s/s%i.sav", com_gamedir, i);
 		f = fopen (name, "r");
 		if (!f)
 			continue;
@@ -1152,9 +1152,10 @@ void M_ScanSaves (void)
 			if (m_filenames[i][j] == '_')
 				m_filenames[i][j] = ' ';
 		loadable[i] = true;
-		fclose (f);			
+		fclose (f);
 	}
 }
+
 
 void M_Menu_Load_f (void)
 {

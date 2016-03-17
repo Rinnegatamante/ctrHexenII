@@ -107,9 +107,11 @@ void CL_RemoveGIPFiles (char *path)
 		
 	while (name)
 	{
-		Con_DPrintf ("Removing %s %s\n",tempdir,name);
+		if (strstr(name,".gip") != NULL){
+			Sys_Printf ("Removing %s %s\n",tempdir,name);
 		
-		unlink (va("%s/%s", tempdir, name));
+			unlink (va("%s/%s", tempdir, name));
+		}
 
 		name = Sys_FindNextFile();
 	}

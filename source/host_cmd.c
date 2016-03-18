@@ -12,7 +12,7 @@
 extern  cvar_t	pausable;
 extern	cvar_t	sv_flypitch;
 extern	cvar_t	sv_walkpitch;
-
+extern qboolean isDSP;
 int current_skill;
 static double old_time;
 
@@ -503,6 +503,14 @@ void Host_Savegame_f (void)
 	int attempts = 0;
 	char *message;
 
+	// Shutting audio playback
+	if (isDSP){
+		ndspSetMasterVol(0.0);
+	}else{
+		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_UpdateInfo(0);
+	}
+	
 	if (cmd_source != src_command)
 		return;
 
@@ -551,6 +559,14 @@ void Host_Savegame_f (void)
 
 	SaveGamestate(false);
 
+	// Shutting audio playback
+	if (isDSP){
+		ndspSetMasterVol(0.0);
+	}else{
+		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_UpdateInfo(0);
+	}
+	
 	retry:
 	attempts++;
 
@@ -612,6 +628,15 @@ void Host_Savegame_f (void)
 			goto retry;
 		}
 	}
+	
+	// Recovering audio playback
+	if (isDSP){
+		ndspSetMasterVol(1.0);
+	}else{
+		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(0.0, 0.0));
+		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(0.0, 0.0));
+		CSND_UpdateInfo(0);
+	}
 }
 
 
@@ -622,6 +647,15 @@ Host_Loadgame_f
 */
 void Host_Loadgame_f (void)
 {
+
+	// Shutting audio playback
+	if (isDSP){
+		ndspSetMasterVol(0.0);
+	}else{
+		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_UpdateInfo(0);
+	}
+	
 	FILE	*f;
 	char	*mapname = malloc(sizeof(char)*MAX_QPATH);
 	float	time, tfloat;
@@ -770,6 +804,15 @@ void Host_Loadgame_f (void)
 		}
 	}
 	LoadGamestate (mapname, NULL, 2);
+	
+	// Shutting audio playback
+	if (isDSP){
+		ndspSetMasterVol(0.0);
+	}else{
+		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_UpdateInfo(0);
+	}
+	
 	SV_SaveSpawnparms ();
 	sv.max_edicts = MAX_EDICTS;
 	ent = EDICT_NUM(1);
@@ -791,11 +834,29 @@ void Host_Loadgame_f (void)
 	free(spawn_parms);
 	free(mapname);
 	free(str);
+	
+	// Recovering audio playback
+	if (isDSP){
+		ndspSetMasterVol(1.0);
+	}else{
+		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(0.0, 0.0));
+		CSND_UpdateInfo(0);
+	}
+	
 }
 
 #ifdef QUAKE2RJ
 void SaveGamestate(qboolean ClientsOnly)
 {
+
+	// Shutting audio playback
+	if (isDSP){
+		ndspSetMasterVol(0.0);
+	}else{
+		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_UpdateInfo(0);
+	}
+	
 	char	name[MAX_OSPATH];
 	char	tempdir[MAX_OSPATH];
 	FILE	*f;
@@ -908,6 +969,14 @@ retry:
 		}
 	}
 	
+	// Recovering audio playback
+	if (isDSP){
+		ndspSetMasterVol(1.0);
+	}else{
+		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(0.0, 0.0));
+		CSND_UpdateInfo(0);
+	}
+	
 }
 
 void RestoreClients(void)
@@ -947,6 +1016,15 @@ void RestoreClients(void)
 
 int LoadGamestate(char *level, char *startspot, int ClientsMode)
 {
+
+	// Shutting audio playback
+	if (isDSP){
+		ndspSetMasterVol(0.0);
+	}else{
+		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_UpdateInfo(0);
+	}
+	
 	char	*name = malloc(sizeof(char)*MAX_OSPATH);
 	char	*tempdir = malloc(sizeof(char)*MAX_OSPATH);
 	FILE	*f;
@@ -1124,6 +1202,15 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 	free(mapname);
 	free(name);
 	free(tempdir);
+	
+	// Recovering audio playback
+	if (isDSP){
+		ndspSetMasterVol(1.0);
+	}else{
+		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(0.0, 0.0));
+		CSND_UpdateInfo(0);
+	}
+	
 	return 0;
 }
 

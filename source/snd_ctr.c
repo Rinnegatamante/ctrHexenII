@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define TICKS_PER_SEC 268111856LL
 #define QUAKE_SAMPLERATE 11025
 #define CSND_SAMPLERATE 32730
-#define CSND_BUFSIZE 4096
+#define CSND_BUFSIZE 16384
 #define DSP_BUFSIZE 16384
 qboolean isDSP = true;
 u32 SAMPLERATE = QUAKE_SAMPLERATE * 2;
@@ -48,11 +48,10 @@ qboolean SNDDMA_Init(void)
 {
   snd_initialized = 0;
   
-  if(ndspInit() != 0){
+  /*if(ndspInit() != 0){
     Con_Printf("dsp::DSP unavailable, trying with csnd:SND...\n");
-	SAMPLERATE = QUAKE_SAMPLERATE;
-	isDSP = false;
-  }else if(csndInit() != 0){
+*/	isDSP = false;
+  /*}else*/ if(csndInit() != 0){
 	Con_Printf("csnd:SND unavailable, audio off...\n");
     return 0;
   }
@@ -69,8 +68,8 @@ qboolean SNDDMA_Init(void)
 		shm->channels = 2;
 		shm->samples = DSP_BUFSIZE<<2;
 	}else{
-		shm->speed = CSND_SAMPLERATE;
-		SAMPLERATE = CSND_SAMPLERATE;
+		shm->speed = QUAKE_SAMPLERATE;
+		//SAMPLERATE = CSND_SAMPLERATE;
 		shm->channels = 1;
 		shm->samples = CSND_BUFSIZE;	
 	}
@@ -87,7 +86,7 @@ qboolean SNDDMA_Init(void)
 		waveBuf = (ndspWaveBuf*)calloc(1, sizeof(ndspWaveBuf));
 		createDspBlock(waveBuf, 2, DSP_BUFSIZE<<2, 1, audiobuffer);
 		ndspChnWaveBufAdd(0x08, waveBuf);
-	}else csndPlaySound(0x08, SOUND_LINEAR_INTERP | SOUND_REPEAT | SOUND_FORMAT_16BIT, CSND_SAMPLERATE, 1.0f, 1.0f, (u32*)audiobuffer, (u32*)audiobuffer, CSND_BUFSIZE);
+	}else csndPlaySound(0x08, SOUND_LINEAR_INTERP | SOUND_REPEAT | SOUND_FORMAT_16BIT, QUAKE_SAMPLERATE, 1.0f, 1.0f, (u32*)audiobuffer, (u32*)audiobuffer, CSND_BUFSIZE);
 	
   initial_tick = svcGetSystemTick();
 
@@ -115,7 +114,6 @@ void SNDDMA_Shutdown(void)
 		free(waveBuf);
 	}else{
 		CSND_SetPlayState(0x08, 0);
-		CSND_SetPlayState(0x09, 0);
 		CSND_UpdateInfo(0);
 		csndExit();
 	}
@@ -132,5 +130,8 @@ Send sound to device if buffer isn't really the dma buffer
 */
 void SNDDMA_Submit(void)
 {
-	if (isDSP) DSP_FlushDataCache(audiobuffer, DSP_BUFSIZE * 4);
+	if (snd_initialized){
+		if (isDSP) DSP_FlushDataCache(audiobuffer, DSP_BUFSIZE * 4);
+		else CSND_FlushDataCache(audiobuffer, CSND_BUFSIZE);
+	}
 }

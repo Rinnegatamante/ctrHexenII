@@ -31,11 +31,10 @@ BUILD		:=	build
 SOURCES		:=	source
 APP_AUTHOR 	:= Rinnegatamante
 APP_TITLE 	:= ctrHexenII
-APP_DESCRIPTION 	:= Hexen II port for 3DS
+APP_DESCRIPTION := Hexen II port for 3DS
 
 DATA		:=	data
 INCLUDES	:=	include
-NO_SMDH		:=	a
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------

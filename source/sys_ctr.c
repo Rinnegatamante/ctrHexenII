@@ -30,7 +30,7 @@ u8 isN3DS;
 #define TICKS_PER_SEC 268123480.0
 
 qboolean		isDedicated;
-
+qboolean		DEBUG_MODE = false;
 u64 initialTime = 0;
 int hostInitialized = 0;
 
@@ -176,6 +176,7 @@ void Sys_Error (char *error, ...)
 	va_end (argptr);
 	printf ("\n");
 	printf("Press START to exit");
+	gfxFlushBuffers();
 	while(1){
 		hidScanInput();
 		u32 kDown = hidKeysDown();
@@ -192,6 +193,7 @@ void Sys_Error (char *error, ...)
 
 void Sys_Printf (char *fmt, ...)
 {
+	if (!DEBUG_MODE) return;
 	//if(hostInitialized)
 	//	return;
 
@@ -367,6 +369,8 @@ int main (int argc, char **argv)
 	fsInit();
 	sdmcInit();
 	hidInit();
+	hidScanInput();
+	if (hidKeysHeld() & KEY_L) DEBUG_MODE = true;
 	gfxSetDoubleBuffering(GFX_TOP, false);
 	gfxSetDoubleBuffering(GFX_BOTTOM, false);
 	gfxSet3D(false);

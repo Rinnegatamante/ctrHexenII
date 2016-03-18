@@ -250,8 +250,7 @@ void Con_Printf (char *fmt, ...)
 	vsprintf (msg,fmt,argptr);
 	va_end (argptr);
 	
-// also echo to debugging console
-	Sys_Printf ("%s", msg);	// also echo to debugging console
+	printf ("%s", msg);	// also echo to debugging console
 
 }
 

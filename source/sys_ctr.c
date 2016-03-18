@@ -401,7 +401,7 @@ int main (int argc, char **argv)
 	Host_Init (&parms);
 	hostInitialized = true;
 	
-	// Set default PSVITA controls
+	// Set default 3DS controls
 	Cbuf_AddText ("unbindall\n");
 	Cbuf_AddText ("bind b +jump\n"); // Cross
 	Cbuf_AddText ("bind y +attack\n"); // Square
@@ -414,6 +414,7 @@ int main (int argc, char **argv)
 	Cbuf_AddText ("bind LEFTARROW invleft\n"); // Left
 	Cbuf_AddText ("bind RIGHTARROW invright\n"); // Right
 	Cbuf_AddText ("sensitivity 5\n"); // Analog Sensitivity
+	Cbuf_AddText ("chase_active 0\n"); // 3rd Person support
 	
 	oldtime = Sys_FloatTime() -0.1;
 	while (aptMainLoop())

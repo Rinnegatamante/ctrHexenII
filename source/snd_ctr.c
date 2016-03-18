@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 
 #define TICKS_PER_SEC 268111856LL
-#define QUAKE_SAMPLERATE 11025
+#define QUAKE_SAMPLERATE 32000
 #define CSND_SAMPLERATE 32730
 #define CSND_BUFSIZE 16384
 #define DSP_BUFSIZE 16384
@@ -70,7 +70,7 @@ qboolean SNDDMA_Init(void)
 		shm->samples = DSP_BUFSIZE<<2;
 	}else{
 		shm->speed = QUAKE_SAMPLERATE;
-		//SAMPLERATE = CSND_SAMPLERATE;
+		SAMPLERATE = QUAKE_SAMPLERATE;
 		shm->channels = 1;
 		shm->samples = CSND_BUFSIZE;	
 	}
@@ -87,7 +87,7 @@ qboolean SNDDMA_Init(void)
 		waveBuf = (ndspWaveBuf*)calloc(1, sizeof(ndspWaveBuf));
 		createDspBlock(waveBuf, 2, DSP_BUFSIZE<<2, 1, audiobuffer);
 		ndspChnWaveBufAdd(0x08, waveBuf);
-	}else csndPlaySound(0x08, SOUND_LINEAR_INTERP | SOUND_REPEAT | SOUND_FORMAT_16BIT, QUAKE_SAMPLERATE, 1.0f, 1.0f, (u32*)audiobuffer, (u32*)audiobuffer, CSND_BUFSIZE);
+	}else csndPlaySound(0x08, SOUND_LINEAR_INTERP | SOUND_REPEAT | SOUND_FORMAT_16BIT, QUAKE_SAMPLERATE, 1.0f, 1.0f, (u32*)audiobuffer, (u32*)audiobuffer, CSND_BUFSIZE<<1);
 	
   initial_tick = svcGetSystemTick();
 

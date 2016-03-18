@@ -369,6 +369,7 @@ int main (int argc, char **argv)
 	fsInit();
 	sdmcInit();
 	hidInit();
+	if (isN3DS) irrstInit();
 	hidScanInput();
 	if (hidKeysHeld() & KEY_L) DEBUG_MODE = true;
 	gfxSetDoubleBuffering(GFX_TOP, false);

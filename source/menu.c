@@ -16,6 +16,7 @@ extern	float introTime;
 extern	cvar_t	crosshair;
 cvar_t m_oldmission = {"m_oldmission","1",true};
 qboolean thirdperson = false;
+qboolean inverted = false;
 void (*vid_menudrawfn)(void);
 void (*vid_menukeyfn)(int key);
 
@@ -1997,6 +1998,7 @@ void M_AdjustSliders (int dir)
 		break;
 	
 	case OPT_INVMOUSE:	// invert mouse
+		inverted = !inverted;
 		Cvar_SetValue ("m_pitch", -m_pitch.value);
 		break;
 	
@@ -2063,7 +2065,7 @@ void M_Options_Draw (void)
 #ifdef PSP
 	M_Print (16, 60+(5*8), "      Analog Nub Speed");
 #else
-	M_Print (16, 60+(5*8), "           Mouse Speed");
+	M_Print (16, 60+(5*8), "    Analog Sensitivity");
 #endif
 	r = (sensitivity.value - 1)/10;
 	M_DrawSlider (220, 60+(5*8), r);
@@ -2079,7 +2081,7 @@ void M_Options_Draw (void)
 #ifdef PSP
 	M_Print (16, 60+(OPT_INVMOUSE*8), "     Invert Analog Nub");
 #else
-	M_Print (16, 60+(OPT_INVMOUSE*8),	"          Invert Mouse");
+	M_Print (16, 60+(OPT_INVMOUSE*8),	"         Invert Camera");
 #endif
 	M_DrawCheckbox (220, 60+(OPT_INVMOUSE*8), m_pitch.value < 0);
 

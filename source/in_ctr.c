@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 circlePosition cstick;
 circlePosition circlepad;
 touchPosition oldtouch, touch;
+extern u8 isN3DS;
+extern qboolean inverted;
 
 void IN_Init (void)
 {
@@ -61,12 +63,28 @@ void IN_Move (usercmd_t *cmd)
     cmd->forwardmove += m_forward.value * circlepad.dy * 2;
   }
   if(abs(circlepad.dx) > 15){
-    if((in_strafe.state & 1) || (lookstrafe.value))
+    if(isN3DS)
       cmd->sidemove += m_side.value * circlepad.dx * 2;
     else
-      cl.viewangles[YAW] -= m_side.value * circlepad.dx * 0.03;
+      cl.viewangles[YAW] -= m_side.value * circlepad.dx * sensitivity.value * 0.01;
   }
 
+  if(isN3DS){
+
+    hidCstickRead(&cstick);
+
+    if(m_pitch.value < 0)
+      cstick.dy = -cstick.dy;
+
+    cstick.dx = abs(cstick.dx) < 10 ? 0 : cstick.dx * sensitivity.value * 0.01;
+    cstick.dy = abs(cstick.dy) < 10 ? 0 : cstick.dy * sensitivity.value * 0.01;
+
+    cl.viewangles[YAW] -= cstick.dx;
+	if (inverted) cl.viewangles[PITCH] += cstick.dy;
+	else cl.viewangles[PITCH] -= cstick.dy;
+	
+  }
+  
   V_StopPitchDrift ();
 
 }

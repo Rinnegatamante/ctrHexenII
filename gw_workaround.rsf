@@ -147,7 +147,7 @@ AccessControlInfo:
    - y2r:u
    - ldr:ro
    - ir:USER
-   - am:u
+   - ir:rst
    - csnd:SND
    - ns:s
    
@@ -214,7 +214,7 @@ CommonHeaderKey:
     lY2Q6dQAAY2ZnOnUAAABkbHA6RktDTGRscDpTUlZSZHNwOjpEU1BmcmQ6dQAA
     AGZzOlVTRVIAZ3NwOjpHcHVoaWQ6VVNFUmh0dHA6QwAAbWljOnUAAABuZG06d
     QAAAG5ld3M6cwAAbndtOjpVRFNwdG06dQAAAHB4aTpkZXYAc29jOlUAAABnc3
-    A6OkxjZHkycjp1AAAAbGRyOnJvAABpcjpVU0VSAGFtOnUAAAAAY3NuZDpTTkR
+    A6OkxjZHkycjp1AAAAbGRyOnJvAABpcjpVU0VSAGlyOnJzdAAAY3NuZDpTTkR
     uczpzAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     AABOn/rw/7//8ec/APIA8JH/APaR/1D/gf9Y/4H/cP+B/3j/gf8BAQD/AAIA/
     iECAPz///////////////////////////////////////////////////////

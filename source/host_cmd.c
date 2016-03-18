@@ -498,11 +498,10 @@ void Host_Savegame_f (void)
 	FILE	*f;
 	int		i;
 	char	comment[SAVEGAME_COMMENT_LENGTH+1];
-	char	name[256];
 //	char	name[MAX_OSPATH],dest[MAX_OSPATH],tempdir[MAX_OSPATH];
-	//qboolean error_state = false;
-	//int attempts = 0;
-	//char *message;
+	qboolean error_state = false;
+	int attempts = 0;
+	char *message;
 
 	if (cmd_source != src_command)
 		return;
@@ -548,14 +547,33 @@ void Host_Savegame_f (void)
 		}
 	}
 
-	sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
-	COM_DefaultExtension (name, ".sav");
+
+
+	SaveGamestate(false);
+
+	retry:
+	attempts++;
+
+	sprintf (name, "%s/%s", com_savedir, Cmd_Argv(1));
+	Sys_mkdir (name);
+
+	CL_RemoveGIPFiles(name);
+
+	sprintf(tempdir,"%s/",com_savedir);
+
+	sprintf (name, "%sclients.gip",tempdir);
+
+	sprintf (name, "*.gip");
+	sprintf (dest, "%s/%s/",com_savedir, Cmd_Argv(1));
+	Con_Printf ("Saving game to %s...\n", dest);
 	
-	Con_Printf ("Saving game to %s...\n", name);
-	f = fopen (name, "w");
+	error_state = CL_CopyFiles(com_savedir, name, dest);
+
+	sprintf(dest,"%s/%s/info.dat",com_savedir, Cmd_Argv(1));
+	f = fopen (dest, "w");
 	if (!f)
 	{
-		Con_Printf ("ERROR: couldn't open.\n");
+		Con_Printf ("ERROR: couldn't open %s\n",dest);
 		return;
 	}
 	
@@ -567,26 +585,33 @@ void Host_Savegame_f (void)
 	fprintf (f, "%d\n", current_skill);
 	fprintf (f, "%s\n", sv.name);
 	fprintf (f, "%f\n",sv.time);
+	fprintf (f, "%d\n",svs.maxclients);
+	fprintf (f, "%f\n",deathmatch.value);
+	fprintf (f, "%f\n",coop.value);
+	fprintf (f, "%f\n",teamplay.value);
+	fprintf (f, "%f\n",randomclass.value);
+	fprintf (f, "%f\n",cl_playerclass.value);
+	fprintf (f, "%d\n",info_mask);
+	fprintf (f, "%d\n",info_mask2);
+	
+	if (ferror(f))
+		error_state = true;
 
-// write the light styles
+	fclose(f);
 
-	for (i=0 ; i<MAX_LIGHTSTYLES ; i++)
+	if (error_state)
 	{
-		if (sv.lightstyles[i])
-			fprintf (f, "%s\n", sv.lightstyles[i]);
+		if (attempts == 1)
+			message = "The game could not be saved properly.  You may be out of hard drive space!  You can ALT-TAB out to try and free up some space.  Type 'Y' if you want to try and re-save the game, otherwise 'N' to ignore.";
 		else
-			fprintf (f,"m\n");
-	}
+			message = "The game could not be saved properly on the previous attempt.  You may be out of hard drive space!  You can ALT-TAB out to try and free up some space.  Type 'Y' if you want to try and re-save the game, otherwise 'N' to ignore.";
 
-
-	ED_WriteGlobals (f);
-	for (i=0 ; i<sv.num_edicts ; i++)
-	{
-		ED_Write (f, EDICT_NUM(i));
-		fflush (f);
+		key_lastpress = 0;
+		if (SCR_ModalMessage(message))
+		{
+			goto retry;
+		}
 	}
-	fclose (f);
-	Con_Printf ("done.\n");
 }
 
 
@@ -597,23 +622,26 @@ Host_Loadgame_f
 */
 void Host_Loadgame_f (void)
 {
-	printf("Load Game");
-	char	*name = malloc(sizeof(char)*MAX_OSPATH);
 	FILE	*f;
-	char	*mapname = malloc(sizeof(char)*MAX_OSPATH);
+	char	*mapname = malloc(sizeof(char)*MAX_QPATH);
 	float	time, tfloat;
 	char	*str = malloc(sizeof(char)*32768);
-	char *start;
+	char	*start;
 	int		i, r;
-	edict_t	*ent;
 	int		entnum;
-	int		version;
-	float			*spawn_parms = malloc(sizeof(float)*NUM_SPAWN_PARMS);
+	edict_t	*ent;
+	int	version;
+	float	tempf;
+	int	tempi;
+	float	*spawn_parms = malloc(sizeof(float)*NUM_SPAWN_PARMS);
+//	char	name[MAX_OSPATH],dest[MAX_OSPATH],tempdir[MAX_OSPATH];
+	qboolean error_state = false;
+	int attempts = 0;
+	char *message;
 
 	if (cmd_source != src_command){
-		free(name);
-		free(mapname);
 		free(spawn_parms);
+		free(mapname);
 		free(str);
 		return;
 	}
@@ -621,42 +649,43 @@ void Host_Loadgame_f (void)
 	if (Cmd_Argc() != 2)
 	{
 		Con_Printf ("load <savename> : load a game\n");
-		free(name);
-		free(mapname);
 		free(spawn_parms);
+		free(mapname);
 		free(str);
 		return;
 	}
 
 	cls.demonum = -1;		// stop demo loop in case this fails
+	CL_Disconnect();
+	CL_RemoveGIPFiles(NULL);
 
-	sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
-	COM_DefaultExtension (name, ".sav");
-
-// we can't call SCR_BeginLoadingPlaque, because too much stack space has
-// been used.  The menu calls it before stuffing loadgame command
-//	SCR_BeginLoadingPlaque ();
+	sprintf (name, "%s/%s", com_savedir, Cmd_Argv(1));
 
 	Con_Printf ("Loading game from %s...\n", name);
-	f = fopen (name, "r");
+
+	sprintf(tempdir,"%s/",com_savedir);
+
+	sprintf(dest,"%s/info.dat",name);
+
+	Con_Printf ("Loading %s\n", dest);
+	f = fopen (dest, "r");
 	if (!f)
 	{
-		Con_Printf ("ERROR: couldn't open.\n");
-		free(name);
-		free(mapname);
+		Con_Printf ("ERROR: couldn't open %s\n",dest);
 		free(spawn_parms);
+		free(mapname);
 		free(str);
 		return;
 	}
-
+	
 	fscanf (f, "%i\n", &version);
+
 	if (version != SAVEGAME_VERSION)
 	{
 		fclose (f);
 		Con_Printf ("Savegame is version %i, not %i\n", version, SAVEGAME_VERSION);
-		free(name);
-		free(mapname);
 		free(spawn_parms);
+		free(mapname);
 		free(str);
 		return;
 	}
@@ -672,101 +701,95 @@ void Host_Loadgame_f (void)
 	Cvar_SetValue ("deathmatch", 0);
 	Cvar_SetValue ("coop", 0);
 	Cvar_SetValue ("teamplay", 0);
+	Cvar_SetValue ("randomclass", 0);
 #endif
 
 	fscanf (f, "%s\n",mapname);
 	fscanf (f, "%f\n",&time);
 
-	CL_Disconnect_f ();
+	tempi = -1;
+	fscanf (f, "%d\n",&tempi);
+	if (tempi >= 1)
+		svs.maxclients = tempi;
 
-#ifdef QUAKE2RJ
-	SV_SpawnServer (mapname, NULL);
-#else
-	SV_SpawnServer (mapname);
-#endif
-	if (!sv.active)
-	{
-		Con_Printf ("Couldn't load map\n");
-		free(name);
-		free(mapname);
-		free(spawn_parms);
-		free(str);
-		return;
-	}
-	sv.paused = true;		// pause until all clients connect
-	sv.loadgame = true;
+	tempf = -1;
+	fscanf (f, "%f\n",&tempf);
+	if (tempf >= 0)
+		Cvar_SetValue ("deathmatch", tempf);
 
-// load the light styles
+	tempf = -1;
+	fscanf (f, "%f\n",&tempf);
+	if (tempf >= 0)
+		Cvar_SetValue ("coop", tempf);
 
-	for (i=0 ; i<MAX_LIGHTSTYLES ; i++)
-	{
-		fscanf (f, "%s\n", str);
-		sv.lightstyles[i] = Hunk_Alloc (strlen(str)+1);
-		strcpy (sv.lightstyles[i], str);
-	}
+	tempf = -1;
+	fscanf (f, "%f\n",&tempf);
+	if (tempf >= 0)
+		Cvar_SetValue ("teamplay", tempf);
 
-// load the edicts out of the savegame file
-	entnum = -1;		// -1 is the globals
-	while (!feof(f))
-	{
-		for (i=0 ; i < 32768 - 1 ; i++)
-		{
-			r = fgetc (f);
-			if (r == EOF || !r)
-				break;
-			str[i] = r;
-			if (r == '}')
-			{
-				i++;
-				break;
-			}
-		}
-		if (i == 32768 - 1)
-			Sys_Error ("Loadgame buffer overflow");
-		str[i] = 0;
-		start = str;
-		start = COM_Parse(str);
-		if (!com_token[0])
-			break;		// end of file
-		if (strcmp(com_token,"{"))
-			Sys_Error ("First token isn't a brace");
+	tempf = -1;
+	fscanf (f, "%f\n",&tempf);
+	if (tempf >= 0)
+		Cvar_SetValue ("randomclass", tempf);
 
-		if (entnum == -1)
-		{	// parse the global vars
-			ED_ParseGlobals (start);
-		}
-		else
-		{	// parse an edict
+	tempf = -1;
+	fscanf (f, "%f\n",&tempf);
+	if (tempf >= 0)
+		Cvar_SetValue ("_cl_playerclass", tempf);
 
-			ent = EDICT_NUM(entnum);
-			memset (&ent->v, 0, progs->entityfields * 4);
-			ent->free = false;
-			ED_ParseEdict (start, ent);
-
-		// link it into the bsp tree
-			if (!ent->free)
-				SV_LinkEdict (ent, false);
-		}
-
-		entnum++;
-	}
-
-	sv.num_edicts = entnum;
-	sv.time = time;
+	fscanf (f, "%d\n",&info_mask);
+	fscanf (f, "%d\n",&info_mask2);
 
 	fclose (f);
+	CL_RemoveGIPFiles(tempdir);
 
-	for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
-		svs.clients->spawn_parms[i] = spawn_parms[i];
+	retry:
+	attempts++;
+
+	sprintf (name, "*.gip");
+	sprintf (dest, "%s/%s",com_savedir, Cmd_Argv(1));
+	error_state = CL_CopyFiles(dest, name, tempdir);
+
+	if (error_state)
+	{
+		if (attempts == 1)
+			message = "The game could not be loaded properly.  You may be out of hard drive space!  You can ALT-TAB out to try and free up some space.  Type 'Y' if you want to try and re-load the game, otherwise 'N' to abort.";
+		else
+			message = "The game could not be loaded properly on the previous attempt.  You may be out of hard drive space!  You can ALT-TAB out to try and free up some space.  Type 'Y' if you want to try and re-load the game, otherwise 'N' to abort.";
+
+		key_lastpress = 0;
+		if (SCR_ModalMessage(message))
+		{
+			goto retry;
+		}
+		else{
+			free(spawn_parms);
+			free(mapname);
+			free(str);
+			return;
+		}
+	}
+	LoadGamestate (mapname, NULL, 2);
+	SV_SaveSpawnparms ();
+	sv.max_edicts = MAX_EDICTS;
+	ent = EDICT_NUM(1);
+	Cvar_SetValue ("_cl_playerclass", ent->v.playerclass);//this better be the same as above...
+
+	// this may be rudundant with the setting in PR_LoadProgs, but not sure so its here too
+	//pr_global_struct->cl_playerclass = ent->v.playerclass;
+
+	svs.clients->playerclass = ent->v.playerclass;
+
+	sv.paused = true;		// pause until all clients connect
+	sv.loadgame = true;
 
 	if (cls.state != ca_dedicated)
 	{
 		CL_EstablishConnection ("local");
 		Host_Reconnect_f ();
 	}
-	free(name);
-	free(mapname);
 	free(spawn_parms);
+	free(mapname);
 	free(str);
 }
 

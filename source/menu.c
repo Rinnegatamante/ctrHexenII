@@ -15,7 +15,6 @@
 extern	float introTime;
 extern	cvar_t	crosshair;
 cvar_t m_oldmission = {"m_oldmission","1",true};
-qboolean thirdperson = false;
 qboolean inverted = false;
 void (*vid_menudrawfn)(void);
 void (*vid_menukeyfn)(int key);
@@ -2003,8 +2002,7 @@ void M_AdjustSliders (int dir)
 		break;
 	
 	case OPT_LOOKSPRING:	// lookspring
-		thirdperson = !thirdperson;
-		Cvar_SetValue ("chase_active", thirdperson);
+		Cvar_SetValue ("chase_active", !chase_active.value);
 		break;
 	
 	case OPT_LOOKSTRAFE:	// lookstrafe
@@ -2086,7 +2084,7 @@ void M_Options_Draw (void)
 	M_DrawCheckbox (220, 60+(OPT_INVMOUSE*8), m_pitch.value < 0);
 
 	M_Print (16, 60+(OPT_LOOKSPRING*8),	"     Third Person Mode");
-	M_DrawCheckbox (220, 60+(OPT_LOOKSPRING*8),thirdperson);
+	M_DrawCheckbox (220, 60+(OPT_LOOKSPRING*8),chase_active.value);
 
 	M_Print (16, 60+(OPT_LOOKSTRAFE*8),	"            Lookstrafe");
 	M_DrawCheckbox (220, 60+(OPT_LOOKSTRAFE*8), lookstrafe.value);
@@ -2138,7 +2136,6 @@ void M_Options_Key (int k)
 			Cbuf_AddText ("bind RIGHTARROW invright\n"); // Right
 			Cbuf_AddText ("sensitivity 5\n"); // Analog Sensitivity
 			Cbuf_AddText ("chase_active 0\n"); // 3rd Person support
-			thirdperson = false;
 			
 			break;
 		default:

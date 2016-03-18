@@ -405,20 +405,27 @@ int main (int argc, char **argv)
 	Host_Init (&parms);
 	hostInitialized = true;
 	
-	// Set default 3DS controls
-	Cbuf_AddText ("unbindall\n");
-	Cbuf_AddText ("bind b +jump\n"); // Cross
-	Cbuf_AddText ("bind y +attack\n"); // Square
-	Cbuf_AddText ("bind a +jump\n"); // Circle
-	Cbuf_AddText ("bind x \"impulse 10\"\n"); // Triangle
-	Cbuf_AddText ("bind l +crouch\n"); // Left Trigger
-	Cbuf_AddText ("bind r +attack\n"); // Right Trigger
-	Cbuf_AddText ("bind UPARROW +showinfo\n"); // Up
-	Cbuf_AddText ("bind DOWNARROW invuse\n"); // Down
-	Cbuf_AddText ("bind LEFTARROW invleft\n"); // Left
-	Cbuf_AddText ("bind RIGHTARROW invright\n"); // Right
-	Cbuf_AddText ("sensitivity 5\n"); // Analog Sensitivity
-	Cbuf_AddText ("chase_active 0\n"); // 3rd Person support
+	// Skipping default setting if config file exists
+	char* cfg = Sys_FindFirstFile("sdmc:/portals","config.cfg");
+	if (cfg == NULL){
+	
+		// Set default 3DS controls
+		Cbuf_AddText ("unbindall\n");
+		Cbuf_AddText ("bind b +jump\n"); // Cross
+		Cbuf_AddText ("bind y +attack\n"); // Square
+		Cbuf_AddText ("bind a +jump\n"); // Circle
+		Cbuf_AddText ("bind x \"impulse 10\"\n"); // Triangle
+		Cbuf_AddText ("bind l +crouch\n"); // Left Trigger
+		Cbuf_AddText ("bind r +attack\n"); // Right Trigger
+		Cbuf_AddText ("bind UPARROW +showinfo\n"); // Up
+		Cbuf_AddText ("bind DOWNARROW invuse\n"); // Down
+		Cbuf_AddText ("bind LEFTARROW invleft\n"); // Left
+		Cbuf_AddText ("bind RIGHTARROW invright\n"); // Right
+		Cbuf_AddText ("sensitivity 5\n"); // Analog Sensitivity
+		Cbuf_AddText ("chase_active 0\n"); // 3rd Person support
+	
+	}
+	Sys_FindClose();
 	
 	oldtime = Sys_FloatTime() -0.1;
 	while (aptMainLoop())

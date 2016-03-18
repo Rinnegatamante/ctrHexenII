@@ -303,18 +303,18 @@ char *Sys_FindFirstFile (char *path, char *pattern)
 		return NULL;
 
 	tmp_len = strlen (pattern);
-	findpattern = (char*) malloc (tmp_len + 1);
+	findpattern = (char*) malloc (tmp_len);
 	if (!findpattern)
 		return NULL;
-	strcpy (findpattern, pattern);
-	findpattern[tmp_len] = '\0';
+	strcpy (findpattern, &pattern[1]);
+	findpattern[tmp_len-1] = '\0';
 	tmp_len = strlen (path);
 	findpath = (char*) malloc (tmp_len + 1);
 	if (!findpath)
 		return NULL;
 	strcpy (findpath, path);
 	findpath[tmp_len] = '\0';
-
+	Sys_Printf("Looking for %s files in %s\n", findpattern, findpath);
 	return Sys_FindNextFile();
 }
 
@@ -329,11 +329,10 @@ char *Sys_FindNextFile (void)
 		finddata = readdir(finddir);
 		if (finddata != NULL)
 		{
-			//if (!fnmatch (findpattern, finddata->d_name, FNM_PATHNAME))
-			//{
+			if (strstr(finddata->d_name,findpattern) != NULL){
 				if ( (stat(va("%s/%s", findpath, finddata->d_name), &test) == 0) && S_ISREG(test.st_mode) )
 					return finddata->d_name;
-			//}
+			}
 		}
 	} while (finddata != NULL);
 

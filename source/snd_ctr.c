@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CSND_BUFSIZE 16384
 #define DSP_BUFSIZE 16384
 qboolean isDSP = true;
-u32 SAMPLERATE = QUAKE_SAMPLERATE * 2;
+u32 SAMPLERATE = QUAKE_SAMPLERATE<<1;
 u32 *audiobuffer;
 ndspWaveBuf* waveBuf;
 u64 initial_tick;
@@ -48,12 +48,13 @@ qboolean SNDDMA_Init(void)
 {
   snd_initialized = 0;
   
-  /*if(ndspInit() != 0){
+  if(ndspInit() != 0){
     Con_Printf("dsp::DSP unavailable, trying with csnd:SND...\n");
-*/	isDSP = false;
-  /*}else*/ if(csndInit() != 0){
-	Con_Printf("csnd:SND unavailable, audio off...\n");
-    return 0;
+	isDSP = false;
+	if(csndInit() != 0){
+		Con_Printf("csnd:SND unavailable, audio off...\n");
+		return 0;
+	}
   }
   
   if (isDSP) audiobuffer = linearAlloc(DSP_BUFSIZE);
@@ -131,7 +132,7 @@ Send sound to device if buffer isn't really the dma buffer
 void SNDDMA_Submit(void)
 {
 	if (snd_initialized){
-		if (isDSP) DSP_FlushDataCache(audiobuffer, DSP_BUFSIZE * 4);
+		if (isDSP) DSP_FlushDataCache(audiobuffer, DSP_BUFSIZE<<2);
 		else CSND_FlushDataCache(audiobuffer, CSND_BUFSIZE);
 	}
 }

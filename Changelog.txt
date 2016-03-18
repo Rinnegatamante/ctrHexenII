@@ -1,7 +1,0 @@
-- Added Third Person Mode in Options Menu. (Experimental)
-- Added dsp::DSP audio service with native stereo sound support and better audio quality.
-- Improved csnd:SND audio service quality.
-- Bugfix for save files: now they will work fine and won't get deleted after exiting homebrew.
-- Bugfix for RemoveGIPFiles: now .pak files will not be deleted randomly anymore.
-- Added 3DS and CIA builds.
-- Bugfix for changelevel2: Now changing map will not cause a buffer overflow error anymore.

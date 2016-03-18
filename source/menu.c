@@ -777,7 +777,8 @@ void M_Menu_Main_f (void)
 	m_entersound = true;
 }
 				
-
+extern qboolean isDSP;
+				
 void M_Main_Draw (void)
 {
 	int		f;
@@ -788,8 +789,11 @@ void M_Main_Draw (void)
 	M_DrawBigString (72,60+(2*20),"OPTIONS");
 	M_DrawBigString (72,60+(3*20),"HELP");
 	M_DrawBigString (72,60+(4*20),"QUIT");
-
-
+	if (snd_initialized){
+		if (isDSP) M_Print (72,60+(6*20),"Audio service: dsp::DSP");
+		else M_Print (72,60+(6*20),"Audio service: csnd:SND");
+	}else M_Print (72,60+(6*20),"Audio service: None");
+	
 	f = (int)(host_time * 10)%8;
 	M_DrawTransPic (43, 54 + m_main_cursor * 20,Draw_CachePic( va("gfx/menu/menudot%i.lmp", f+1 ) ) );
 }

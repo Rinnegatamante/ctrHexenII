@@ -24,43 +24,75 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 
 #define TICKS_PER_SEC 268111856LL
-#define SAMPLE_RATE   32730
+#define QUAKE_SAMPLERATE 11025
+#define CSND_SAMPLERATE 32730
 #define CSND_BUFSIZE 4096
-
-u8 *csnd_buf;
+#define DSP_BUFSIZE 16384
+qboolean isDSP = true;
+u32 SAMPLERATE = QUAKE_SAMPLERATE * 2;
+u32 *audiobuffer;
+ndspWaveBuf* waveBuf;
 u64 initial_tick;
 int snd_inited;
+
+// createDspBlock: Create a new block for DSP service
+void createDspBlock(ndspWaveBuf* waveBuf, u16 bps, u32 size, u8 loop, u32* data){
+	waveBuf->data_vaddr = (void*)data;
+	waveBuf->nsamples = size / bps;
+	waveBuf->looping = loop;
+	waveBuf->offset = 0;	
+	DSP_FlushDataCache(data, size);
+}
 
 qboolean SNDDMA_Init(void)
 {
   snd_initialized = 0;
-
-  if(csndInit() != 0){
-    Con_Printf("csndInit() failed\n");
+  
+  if(ndspInit() != 0){
+    Con_Printf("dsp::DSP unavailable, trying with csnd:SND...\n");
+	SAMPLERATE = QUAKE_SAMPLERATE;
+	isDSP = false;
+  }else if(csndInit() != 0){
+	Con_Printf("csnd:SND unavailable, audio off...\n");
     return 0;
   }
-
-  csnd_buf = linearAlloc(CSND_BUFSIZE);
+  
+  if (isDSP) audiobuffer = linearAlloc(DSP_BUFSIZE);
+  else audiobuffer = linearAlloc(CSND_BUFSIZE);
 
 	/* Fill the audio DMA information block */
 	shm = &sn;
 	shm->splitbuffer = 0;
 	shm->samplebits = 16;
-	shm->speed = SAMPLE_RATE;
-	shm->channels = 1;
-	shm->samples = CSND_BUFSIZE / (shm->samplebits / 8);
+	if (isDSP){
+		shm->speed = QUAKE_SAMPLERATE;
+		shm->channels = 2;
+		shm->samples = DSP_BUFSIZE<<2;
+	}else{
+		shm->speed = CSND_SAMPLERATE;
+		SAMPLERATE = CSND_SAMPLERATE;
+		shm->channels = 1;
+		shm->samples = CSND_BUFSIZE;	
+	}
 	shm->samplepos = 0;
 	shm->submission_chunk = 1;
-	shm->buffer = csnd_buf;
-  int ret = csndPlaySound(0x10, SOUND_REPEAT | SOUND_FORMAT_16BIT, SAMPLE_RATE, 0.75f, 0.0f, (u32*)csnd_buf, (u32*)csnd_buf, CSND_BUFSIZE);
-  if(ret != 0){
-    Con_Printf("csndPlaySound() failed\n");
-    return 0;
-  }
+	shm->buffer = audiobuffer;
+	if (isDSP){
+		ndspSetOutputMode(NDSP_OUTPUT_STEREO);
+		ndspChnReset(0x08);
+		ndspChnWaveBufClear(0x08);
+		ndspChnSetInterp(0x08, NDSP_INTERP_LINEAR);
+		ndspChnSetRate(0x08, (float)QUAKE_SAMPLERATE);
+		ndspChnSetFormat(0x08, NDSP_FORMAT_STEREO_PCM16);
+		waveBuf = (ndspWaveBuf*)calloc(1, sizeof(ndspWaveBuf));
+		createDspBlock(waveBuf, 2, DSP_BUFSIZE<<2, 1, audiobuffer);
+		ndspChnWaveBufAdd(0x08, waveBuf);
+	}else csndPlaySound(0x08, SOUND_LINEAR_INTERP | SOUND_REPEAT | SOUND_FORMAT_16BIT, CSND_SAMPLERATE, 1.0f, 1.0f, (u32*)audiobuffer, (u32*)audiobuffer, CSND_BUFSIZE);
+	
   initial_tick = svcGetSystemTick();
 
   snd_initialized = 1;
-	return 1;
+  return 1;
 }
 
 int SNDDMA_GetDMAPos(void)
@@ -69,7 +101,7 @@ int SNDDMA_GetDMAPos(void)
     return 0;
 
   u64 delta = (svcGetSystemTick() - initial_tick);
-  u64 samplepos = delta * (SAMPLE_RATE) / TICKS_PER_SEC;
+  u64 samplepos = delta * (SAMPLERATE) / TICKS_PER_SEC;
 	shm->samplepos = samplepos;
 	return samplepos;
 }
@@ -77,10 +109,17 @@ int SNDDMA_GetDMAPos(void)
 void SNDDMA_Shutdown(void)
 {
   if(snd_initialized){
-    CSND_SetPlayState(0x10, 0);
-    csndExecCmds(false);
-    linearFree(csnd_buf);
-    csndExit();
+	if (isDSP){
+		ndspChnWaveBufClear(0x08);
+		ndspExit();
+		free(waveBuf);
+	}else{
+		CSND_SetPlayState(0x08, 0);
+		CSND_SetPlayState(0x09, 0);
+		CSND_UpdateInfo(0);
+		csndExit();
+	}
+	linearFree(audiobuffer);
   }
 }
 
@@ -93,6 +132,5 @@ Send sound to device if buffer isn't really the dma buffer
 */
 void SNDDMA_Submit(void)
 {
-  //if(snd_initialized)
-    //GSPGPU_FlushDataCache(NULL, csnd_buf, csnd_bufsize);
+	if (isDSP) DSP_FlushDataCache(audiobuffer, DSP_BUFSIZE * 4);
 }

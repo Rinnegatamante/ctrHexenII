@@ -30,6 +30,7 @@ circlePosition circlepad;
 touchPosition oldtouch, touch;
 extern u8 isN3DS;
 extern qboolean inverted;
+extern qboolean gyroscope;
 
 void IN_Init (void)
 {
@@ -84,6 +85,19 @@ void IN_Move (usercmd_t *cmd)
 	else cl.viewangles[PITCH] -= cstick.dy;
 	
   }
+  
+	// Gyroscope support
+	if (gyroscope){ 
+		angularRate cpos;
+		hidGyroRead(&cpos);
+		if (cpos.y > 200 || cpos.y < -200){
+			cl.viewangles[YAW] += cpos.y / 250;
+		}
+		if (cpos.x > 200 || cpos.x < -200){
+			if (inverted) cl.viewangles[PITCH] -= cpos.x / 200;
+			else cl.viewangles[PITCH] += cpos.x / 200;
+		}
+	}
   
   V_StopPitchDrift ();
 

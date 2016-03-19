@@ -16,6 +16,7 @@ extern	float introTime;
 extern	cvar_t	crosshair;
 cvar_t m_oldmission = {"m_oldmission","1",true};
 qboolean inverted = false;
+qboolean gyroscope = false;
 void (*vid_menudrawfn)(void);
 void (*vid_menukeyfn)(int key);
 
@@ -2001,12 +2002,14 @@ void M_AdjustSliders (int dir)
 		Cvar_SetValue ("m_pitch", -m_pitch.value);
 		break;
 	
-	case OPT_LOOKSPRING:	// lookspring
+	case OPT_LOOKSPRING:	// 3rd person
 		Cvar_SetValue ("chase_active", !chase_active.value);
 		break;
 	
-	case OPT_LOOKSTRAFE:	// lookstrafe
-		Cvar_SetValue ("lookstrafe", !lookstrafe.value);
+	case OPT_LOOKSTRAFE:	// gyroscope
+		gyroscope = !gyroscope;
+		if (gyroscope) HIDUSER_EnableGyroscope();
+		else HIDUSER_DisableGyroscope();
 		break;
 
 	case OPT_CROSSHAIR:	
@@ -2086,8 +2089,8 @@ void M_Options_Draw (void)
 	M_Print (16, 60+(OPT_LOOKSPRING*8),	"     Third Person Mode");
 	M_DrawCheckbox (220, 60+(OPT_LOOKSPRING*8),chase_active.value);
 
-	M_Print (16, 60+(OPT_LOOKSTRAFE*8),	"            Lookstrafe");
-	M_DrawCheckbox (220, 60+(OPT_LOOKSTRAFE*8), lookstrafe.value);
+	M_Print (16, 60+(OPT_LOOKSTRAFE*8),	"         Use Gyroscope");
+	M_DrawCheckbox (220, 60+(OPT_LOOKSTRAFE*8), gyroscope);
 
 	M_Print (16, 60+(OPT_CROSSHAIR*8),	"        Show Crosshair");
 	M_DrawCheckbox (220, 60+(OPT_CROSSHAIR*8), crosshair.value);
@@ -2561,7 +2564,7 @@ static qboolean SoundPlayed;
 #define MAX_LINES 146
 char *CreditText[MAX_LINES] =
 {
-   "ctrHexenII version 1.0",
+   "ctrHexenII version 1.1",
    "   3DS port by Rinnegatamante",
    "",
    "   original Hexen II source code",

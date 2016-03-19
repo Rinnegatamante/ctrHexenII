@@ -633,8 +633,8 @@ void Host_Savegame_f (void)
 	if (isDSP){
 		ndspSetMasterVol(1.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(0.0, 0.0));
-		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(0.0, 0.0));
+		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(1.0, 1.0));
+		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(1.0, 1.0));
 		CSND_UpdateInfo(0);
 	}
 }
@@ -839,7 +839,7 @@ void Host_Loadgame_f (void)
 	if (isDSP){
 		ndspSetMasterVol(1.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(0.0, 0.0));
+		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(1.0, 1.0));
 		CSND_UpdateInfo(0);
 	}
 	
@@ -973,7 +973,7 @@ retry:
 	if (isDSP){
 		ndspSetMasterVol(1.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(0.0, 0.0));
+		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(1.0, 1.0));
 		CSND_UpdateInfo(0);
 	}
 	
@@ -1207,7 +1207,7 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 	if (isDSP){
 		ndspSetMasterVol(1.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(0.0, 0.0));
+		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(1.0, 1.0));
 		CSND_UpdateInfo(0);
 	}
 	

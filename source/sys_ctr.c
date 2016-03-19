@@ -375,7 +375,10 @@ int main (int argc, char **argv)
 	gfxSetDoubleBuffering(GFX_TOP, false);
 	gfxSetDoubleBuffering(GFX_BOTTOM, false);
 	gfxSet3D(false);
-	consoleInit(GFX_BOTTOM, NULL);
+	if (hidKeysHeld() & KEY_R){
+		gfxSwapBuffersGpu();
+		gspWaitForVBlank();
+	}else consoleInit(GFX_BOTTOM, NULL);
 	Sys_Printf("Console initialized...\n");
 
 	char *qargv[3];

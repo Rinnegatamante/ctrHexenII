@@ -9,16 +9,20 @@
 
 #include <string.h>
 #include "net_dgrm.h"
+#include <3ds.h>
 
 //extern cvar_t	accesspoint;
 
 extern	float introTime;
 extern	cvar_t	crosshair;
+extern qboolean DEBUG_MODE;
+extern qboolean	consoleFirst;
 cvar_t m_oldmission = {"m_oldmission","1",true};
 qboolean inverted = false;
 qboolean gyroscope = false;
 void (*vid_menudrawfn)(void);
 void (*vid_menukeyfn)(int key);
+u8 cns_idx = 1;
 
 enum {m_none, m_main, m_singleplayer, m_load, m_save, m_multiplayer, m_setup, m_net, m_options, m_video, 
 		m_keys, m_help, m_quit, m_serialconfig, m_modemconfig, m_lanconfig, m_gameoptions, m_search, m_slist, 
@@ -2048,9 +2052,9 @@ void M_Options_Draw (void)
 	float		r;
 	
 	ScrollTitle("gfx/menu/title3.lmp");
-	
+	char console_voices[3][32] = {"          Console Mode   Debug", "          Console Mode   Game", "          Console Mode   None"};
 	M_Print (16, 60+(0*8), "    Customize controls");
-	M_Print (16, 60+(1*8), "         Go to console");
+	M_Print (16, 60+(1*8), console_voices[cns_idx]);
 	M_Print (16, 60+(2*8), "     Reset to defaults");
 
 	M_Print (16, 60+(3*8), "           Screen size");
@@ -2119,8 +2123,23 @@ void M_Options_Key (int k)
 			M_Menu_Keys_f ();
 			break;
 		case OPT_CONSOLE:
-			m_state = m_none;
-			Con_ToggleConsole_f ();
+			cns_idx++;
+			if (cns_idx > 2) cns_idx = 0;
+			if (cns_idx == 0){ 
+				consoleGetDefault()->frameBuffer = (u16*)gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, NULL, NULL);
+				DEBUG_MODE = true;
+				Sys_Printf("Debug console enabled...\n");
+			}else if (cns_idx == 1){
+				DEBUG_MODE = true;
+				Con_Printf("Debug console disabled...\n");
+			}else{
+				if (consoleFirst == false){
+					consoleInit(GFX_BOTTOM, NULL);
+					consoleFirst = true;
+				}
+				consoleClear();
+				consoleGetDefault()->frameBuffer = (u16*)gfxGetFramebuffer(GFX_BOTTOM, GFX_RIGHT, NULL, NULL);
+			}
 			break;
 		case OPT_DEFAULTS:
 			Cbuf_AddText ("exec default.cfg\n");

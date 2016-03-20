@@ -31,8 +31,10 @@ u8 isN3DS;
 
 qboolean		isDedicated;
 qboolean		DEBUG_MODE = false;
+qboolean		consoleFirst = true;
 u64 initialTime = 0;
 int hostInitialized = 0;
+extern u8 cns_idx;
 
 /*
 ===============================================================================
@@ -371,13 +373,18 @@ int main (int argc, char **argv)
 	hidInit();
 	if (isN3DS) irrstInit();
 	hidScanInput();
-	if (hidKeysHeld() & KEY_L) DEBUG_MODE = true;
+	if (hidKeysHeld() & KEY_L){
+		DEBUG_MODE = true;
+		cns_idx = 0;
+	}
 	gfxSetDoubleBuffering(GFX_TOP, false);
 	gfxSetDoubleBuffering(GFX_BOTTOM, false);
 	gfxSet3D(false);
 	if (hidKeysHeld() & KEY_R){
+		cns_idx = 2;
 		gfxSwapBuffersGpu();
 		gspWaitForVBlank();
+		consoleFirst = false;
 	}else consoleInit(GFX_BOTTOM, NULL);
 	Sys_Printf("Console initialized...\n");
 

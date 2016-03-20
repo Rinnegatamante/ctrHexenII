@@ -9,6 +9,9 @@
 #include <unistd.h>
 #include <3ds.h>
 
+#define MUTE CSND_VOL(0.0, 0.0),CSND_VOL(0.0, 0.0)
+#define UNMUTE CSND_VOL(1.0, 0.0),CSND_VOL(1.0, 0.0)
+
 extern  cvar_t	pausable;
 extern	cvar_t	sv_flypitch;
 extern	cvar_t	sv_walkpitch;
@@ -507,7 +510,7 @@ void Host_Savegame_f (void)
 	if (isDSP){
 		ndspSetMasterVol(0.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_SetVol(0x08, MUTE);
 		CSND_UpdateInfo(0);
 	}
 	
@@ -563,7 +566,7 @@ void Host_Savegame_f (void)
 	if (isDSP){
 		ndspSetMasterVol(0.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_SetVol(0x08, MUTE);
 		CSND_UpdateInfo(0);
 	}
 	
@@ -633,8 +636,8 @@ void Host_Savegame_f (void)
 	if (isDSP){
 		ndspSetMasterVol(1.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(1.0, 1.0));
-		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(1.0, 1.0));
+		CSND_SetVol(0x08, UNMUTE);
+		CSND_SetVol(0x08, UNMUTE);
 		CSND_UpdateInfo(0);
 	}
 }
@@ -652,7 +655,7 @@ void Host_Loadgame_f (void)
 	if (isDSP){
 		ndspSetMasterVol(0.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_SetVol(0x08, MUTE);
 		CSND_UpdateInfo(0);
 	}
 	
@@ -809,7 +812,7 @@ void Host_Loadgame_f (void)
 	if (isDSP){
 		ndspSetMasterVol(0.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_SetVol(0x08, MUTE);
 		CSND_UpdateInfo(0);
 	}
 	
@@ -839,7 +842,7 @@ void Host_Loadgame_f (void)
 	if (isDSP){
 		ndspSetMasterVol(1.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(1.0, 1.0));
+		CSND_SetVol(0x08, UNMUTE);
 		CSND_UpdateInfo(0);
 	}
 	
@@ -853,7 +856,7 @@ void SaveGamestate(qboolean ClientsOnly)
 	if (isDSP){
 		ndspSetMasterVol(0.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_SetVol(0x08, MUTE);
 		CSND_UpdateInfo(0);
 	}
 	
@@ -973,7 +976,7 @@ retry:
 	if (isDSP){
 		ndspSetMasterVol(1.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(1.0, 1.0));
+		CSND_SetVol(0x08, UNMUTE);
 		CSND_UpdateInfo(0);
 	}
 	
@@ -1021,7 +1024,7 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 	if (isDSP){
 		ndspSetMasterVol(0.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(0.0, 0.0), CSND_VOL(0.0, 0.0));
+		CSND_SetVol(0x08, MUTE);
 		CSND_UpdateInfo(0);
 	}
 	
@@ -1207,7 +1210,7 @@ int LoadGamestate(char *level, char *startspot, int ClientsMode)
 	if (isDSP){
 		ndspSetMasterVol(1.0);
 	}else{
-		CSND_SetVol(0x08, CSND_VOL(1.0, 1.0), CSND_VOL(1.0, 1.0));
+		CSND_SetVol(0x08, UNMUTE);
 		CSND_UpdateInfo(0);
 	}
 	

@@ -87,7 +87,7 @@ qboolean SNDDMA_Init(void)
 		waveBuf = (ndspWaveBuf*)calloc(1, sizeof(ndspWaveBuf));
 		createDspBlock(waveBuf, 2, DSP_BUFSIZE<<2, 1, audiobuffer);
 		ndspChnWaveBufAdd(0x08, waveBuf);
-	}else csndPlaySound(0x08, SOUND_LINEAR_INTERP | SOUND_REPEAT | SOUND_FORMAT_16BIT, QUAKE_SAMPLERATE, 1.0f, 1.0f, (u32*)audiobuffer, (u32*)audiobuffer, CSND_BUFSIZE<<1);
+	}else csndPlaySound(0x08, SOUND_LINEAR_INTERP | SOUND_REPEAT | SOUND_FORMAT_16BIT, QUAKE_SAMPLERATE, 1.0, 0.0, (u32*)audiobuffer, (u32*)audiobuffer, CSND_BUFSIZE<<1);
 	
   initial_tick = svcGetSystemTick();
 

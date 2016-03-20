@@ -2130,7 +2130,7 @@ void M_Options_Key (int k)
 				DEBUG_MODE = true;
 				Sys_Printf("Debug console enabled...\n");
 			}else if (cns_idx == 1){
-				DEBUG_MODE = true;
+				DEBUG_MODE = false;
 				Con_Printf("Debug console disabled...\n");
 			}else{
 				if (consoleFirst == false){
@@ -2158,6 +2158,7 @@ void M_Options_Key (int k)
 			Cbuf_AddText ("bind RIGHTARROW invright\n"); // Right
 			Cbuf_AddText ("sensitivity 5\n"); // Analog Sensitivity
 			Cbuf_AddText ("chase_active 0\n"); // 3rd Person support
+			Cbuf_AddText ("+mlook"); // Y-Axis Camera movement
 			
 			break;
 		default:
